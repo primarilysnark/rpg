@@ -47,11 +47,17 @@ export function configurePassportAuthentication(passport) {
           refresh_token: user.google.refreshToken,
         });
 
-        plus.people.get({ userId: 'me', auth: oauth2Client }, (error, response) => callback(null, {
-          ...user,
-          name: response.displayName,
-          nickname: response.nickname,
-        }));
+        plus.people.get({ userId: 'me', auth: oauth2Client }, (error, response) => {
+          if (error) {
+            return callback(error);
+          }
+
+          return callback(null, {
+            ...user,
+            name: response.displayName,
+            nickname: response.nickname,
+          });
+        });
       });
   });
 }
