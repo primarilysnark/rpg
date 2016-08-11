@@ -41,6 +41,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.get('/auth/google', passport.authenticate('google', {
+  accessType: 'offline',
+  approvalPrompt: 'force',
   scope: ['profile', 'email'],
 }));
 
