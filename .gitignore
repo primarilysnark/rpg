@@ -38,3 +38,6 @@ node_modules
 # Generated code
 dist
 *.g.*
+
+# Environment data
+src/server/environments
