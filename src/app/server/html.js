@@ -18,7 +18,7 @@ export const Html = (props) => {
       </head>
       <body>
         <div id="app" dangerouslySetInnerHTML={{ __html: content }} />
-        <script dangerouslySetInnerHTML={{ __html: `var __INITIAL_STATE = ${JSON.stringify(props.store.getState())}, __DEBUG__ = ${props.isDebug};` }} />
+        <script dangerouslySetInnerHTML={{ __html: `var __INITIAL_STATE__ = ${JSON.stringify(props.store.getState())}, __DEBUG__ = ${props.isDebug};` }} />
         <script src="/dist/main.bundle.js" />
       </body>
     </html>
