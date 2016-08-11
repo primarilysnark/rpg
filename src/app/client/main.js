@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { Router } from 'react-router';
-import createBrowserHistory from 'history/lib/createBrowserHistory';
+import { Router, browserHistory } from 'react-router';
 
 import { activate } from '../shared/activator';
 import { configureStore } from '../shared/configure-store';
@@ -25,7 +24,7 @@ function handleRouterUpdate() {
 const view = (
   <Router
     routes={routes}
-    history={createBrowserHistory()}
+    history={browserHistory}
     onUpdate={handleRouterUpdate}
   />
 );

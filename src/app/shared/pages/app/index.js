@@ -1,14 +1,27 @@
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 
-export const App = (props) => (
-  <div className="app">
-    <header className="app__header">RPG</header>
-    <div className="app__content">
-      {props.children}
-    </div>
-  </div>
-);
+function mapStateToProps({ currentUser }) {
+  return { currentUser };
+}
 
-App.propTypes = {
-  children: PropTypes.node,
-};
+@connect(mapStateToProps)
+export class App extends Component {
+  static propTypes = {
+    children: PropTypes.node,
+    currentUser: PropTypes.shape({
+      name: PropTypes.string,
+    }).isRequired,
+  };
+
+  render() {
+    return (
+      <div className="app">
+        <header className="app__header">RPG - {this.props.currentUser.name}</header>
+        <div className="app__content">
+          {this.props.children}
+        </div>
+      </div>
+    );
+  }
+}

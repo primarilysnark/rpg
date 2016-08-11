@@ -12,7 +12,7 @@ const isDebug = !!process.env.DEVTOOLS;
 
 export function createAppRequestHandler() {
   return function handleAppRequest(request, response) {
-    const store = configureStore({}, request.clients);
+    const store = configureStore(request.store || {}, request.clients);
 
     function render(status, renderToProps) {
       const content = renderToString(

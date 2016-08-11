@@ -1,12 +1,22 @@
+/* eslint no-param-reassign: 0 */
+import session from 'express-session';
 import express from 'express';
-import sessions from 'client-sessions';
+import mongoose from 'mongoose';
+import passport from 'passport';
 
 import { addWebpackDevProxy } from './dev';
+import { configurePassportAuthentication } from './auth';
 import * as main from '../app/server/main';
 import config from './config';
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+configurePassportAuthentication(passport);
+
+// Setup mongoose
+mongoose.Promise = global.Promise;
+mongoose.connect(config.mongodb.connectionUrl);
 
 if (!PRODUCTION) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
@@ -18,14 +28,35 @@ if (DEBUG) {
   addWebpackDevProxy(app);
 }
 
-app.use(sessions({
-  cookieName: 'auth',
-  duration: 1000 * 60 * 60 * 24 * 365 * 10,
-  ephemeral: false,
-  httpOnly: true,
+app.use(session({
+  cookie: {
+    secure: false,
+  },
+  resave: false,
+  saveUninitialized: false,
   secret: config.session.secret,
-  secure: PRODUCTION,
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/auth/google', passport.authenticate('google', {
+  scope: ['profile', 'email'],
+}));
+
+app.get('/auth/google/callback', passport.authenticate('google', {
+  failureRedirect: '/',
+}), (request, response) => {
+  response.redirect('/');
+});
+
+app.use((request, response, next) => {
+  request.store = {
+    currentUser: request.user,
+  };
+
+  next();
+});
 
 app.use(main.createAppRequestHandler());
 
