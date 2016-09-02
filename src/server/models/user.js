@@ -6,5 +6,6 @@ export default mongoose.model('User', mongoose.Schema({
     id: String,
     token: String,
     refreshToken: String,
+    expireTime: Number,
   },
 }));

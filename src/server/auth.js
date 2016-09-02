@@ -5,41 +5,56 @@ import User from './models/user';
 import config from './config';
 
 const plus = google.plus('v1');
-const oauth2Client = new google.auth.OAuth2(config.google.clientID, config.google.clientSecret, config.google.callbackURL);
 
 export function configurePassportAuthentication(passport) {
-  // Initialize Passport
+  const currentDate = Date.now();
+
   passport.use(new GoogleStrategy({
     callbackURL: config.google.callbackURL,
     clientID: config.google.clientID,
     clientSecret: config.google.clientSecret,
-  }, (token, refreshToken, profile, done) => {
-    User.findOne({ 'google.id': profile.id }, (error, user) => {
-      if (error) {
-        return done(error);
-      }
+  }, (token, refreshToken, params, profile, done) => {
+    User.findOne({ 'google.id': profile.id })
+      .then(user => {
+        if (user == null) {
+          const newUser = new User({
+            google: {
+              id: profile.id,
+              token,
+              refreshToken,
+              expireTime: currentDate + params.expires_in,
+            },
+          });
 
-      if (user) {
-        return done(null, user);
-      }
+          return newUser.save()
+            .then(() => newUser);
+        }
 
-      const newUser = new User({
-        google: {
-          id: profile.id,
-          token,
-          refreshToken,
-        },
-      });
-
-      return newUser.save()
-        .then(() => done(null, newUser))
-        .catch(saveError => saveError);
-    });
+        return user.update({
+          google: {
+            id: user.google.id,
+            token,
+            refreshToken,
+            expireTime: currentDate + params.expires_in,
+          },
+        })
+          .then(() => user);
+      })
+      .then(user => done(null, user))
+      .catch(error => done(error));
   }));
 
-  passport.serializeUser((user, callback) => callback(null, user._id));
+  passport.serializeUser((user, callback) => {
+    callback(null, user._id);
+  });
 
   passport.deserializeUser((id, callback) => {
+    const oauth2Client = new google.auth.OAuth2(
+      config.google.clientID,
+      config.google.clientSecret,
+      config.google.callbackURL
+    );
+
     User.findById(id)
       .then(user => {
         oauth2Client.setCredentials({
@@ -47,17 +62,44 @@ export function configurePassportAuthentication(passport) {
           refresh_token: user.google.refreshToken,
         });
 
+        return new Promise((resolve, reject) => {
+          if (user.google.expireTime <= Date.now()) {
+            oauth2Client.refreshAccessToken((error, response) => {
+              if (error) {
+                reject(error);
+              }
+
+              resolve(user.update({
+                google: {
+                  id: user.google.id,
+                  token: response.access_token,
+                  refreshToken: user.google.refreshToken,
+                  expireTime: currentDate + response.expiry_date,
+                },
+              })
+                .then(() => user));
+            });
+          } else {
+            resolve(user);
+          }
+        });
+      })
+      .then(user => new Promise((resolve, reject) => {
         plus.people.get({ userId: 'me', auth: oauth2Client }, (error, response) => {
           if (error) {
-            return callback(error);
+            reject(error);
           }
 
-          return callback(null, {
-            ...user,
-            name: response.displayName,
-            nickname: response.nickname,
+          resolve({
+            user,
+            response,
           });
         });
-      });
+      }))
+      .then(result => callback(null, {
+        ...result.user,
+        name: result.response.displayName,
+        nickname: result.response.nickname,
+      }));
   });
 }
