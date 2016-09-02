@@ -7,13 +7,13 @@ import config from './config';
 const plus = google.plus('v1');
 
 export function setupGoogleOAuth(passport) {
-  const currentDate = Date.now();
-
   passport.use(new GoogleStrategy({
     callbackURL: config.google.callbackURL,
     clientID: config.google.clientID,
     clientSecret: config.google.clientSecret,
   }, (token, refreshToken, params, profile, done) => {
+    const currentDate = Date.now();
+
     User.findOne({ 'google.id': profile.id })
       .then(user => {
         if (user == null) {
@@ -22,7 +22,7 @@ export function setupGoogleOAuth(passport) {
               id: profile.id,
               token,
               refreshToken,
-              expireTime: currentDate + params.expires_in,
+              expireTime: (currentDate + params.expires_in),
             },
           });
 
@@ -62,8 +62,10 @@ export function setupGoogleOAuth(passport) {
           refresh_token: user.google.refreshToken,
         });
 
+        const currentDate = Date.now();
+
         return new Promise((resolve, reject) => {
-          if (user.google.expireTime <= Date.now()) {
+          if (user.google.expireTime <= currentDate) {
             oauth2Client.refreshAccessToken((error, response) => {
               if (error) {
                 reject(error);
@@ -74,7 +76,7 @@ export function setupGoogleOAuth(passport) {
                   id: user.google.id,
                   token: response.access_token,
                   refreshToken: user.google.refreshToken,
-                  expireTime: currentDate + response.expiry_date,
+                  expireTime: (currentDate + response.expiry_date),
                 },
               })
                 .then(() => user));
