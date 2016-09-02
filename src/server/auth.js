@@ -1,10 +1,10 @@
 import { OAuth2Strategy as GoogleStrategy } from 'passport-google-oauth';
-import google from 'googleapis';
+import { auth, plus } from 'googleapis';
 
 import User from './models/user';
 import config from './config';
 
-const plus = google.plus('v1');
+const plusClient = plus('v1');
 
 export function setupGoogleOAuth(passport) {
   passport.use(new GoogleStrategy({
@@ -49,7 +49,7 @@ export function setupGoogleOAuth(passport) {
   });
 
   passport.deserializeUser((id, callback) => {
-    const oauth2Client = new google.auth.OAuth2(
+    const oauth2Client = new auth.OAuth2(
       config.google.clientID,
       config.google.clientSecret,
       config.google.callbackURL
@@ -87,7 +87,7 @@ export function setupGoogleOAuth(passport) {
         });
       })
       .then(user => new Promise((resolve, reject) => {
-        plus.people.get({ userId: 'me', auth: oauth2Client }, (error, response) => {
+        plusClient.people.get({ userId: 'me', auth: oauth2Client }, (error, response) => {
           if (error) {
             reject(error);
           }
