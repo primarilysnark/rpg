@@ -1,13 +1,16 @@
 /* eslint no-param-reassign: 0 */
-import session from 'express-session';
+import connectMongo from 'connect-mongo';
 import express from 'express';
 import mongoose from 'mongoose';
 import passport from 'passport';
+import session from 'express-session';
 
 import { addWebpackDevProxy } from './dev';
 import { configurePassportAuthentication } from './auth';
 import * as main from '../app/server/main';
 import config from './config';
+
+const MongoStore = connectMongo(session);
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -35,6 +38,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   secret: config.session.secret,
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+  }),
 }));
 
 app.use(passport.initialize());
