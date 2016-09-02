@@ -26,6 +26,7 @@ if (!PRODUCTION) {
 }
 
 app.use('/dist', express.static('dist'));
+app.use('/public', express.static('public'));
 
 if (DEBUG) {
   addWebpackDevProxy(app);
