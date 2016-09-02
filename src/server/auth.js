@@ -6,7 +6,7 @@ import config from './config';
 
 const plus = google.plus('v1');
 
-export function configurePassportAuthentication(passport) {
+export function setupGoogleOAuth(passport) {
   const currentDate = Date.now();
 
   passport.use(new GoogleStrategy({
