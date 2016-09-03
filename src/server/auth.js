@@ -76,7 +76,7 @@ export function setupGoogleOAuth(passport) {
                   id: user.google.id,
                   token: response.access_token,
                   refreshToken: user.google.refreshToken,
-                  expireTime: (currentDate + response.expiry_date),
+                  expireTime: response.expiry_date,
                 },
               })
                 .then(() => user));
