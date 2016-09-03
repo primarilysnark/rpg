@@ -80,6 +80,16 @@ app.use((request, response, next) => {
   next();
 });
 
+app.post('/signout', (request, response) => {
+  request.session.destroy(err => {
+    if (err != null) {
+      response.status(500).send(err);
+    }
+
+    response.redirect('/');
+  });
+});
+
 app.use('/api', createApiRequestHandler());
 
 // Setup usage of React router for routing on all other pages
