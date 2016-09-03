@@ -7,7 +7,7 @@
     "dev": "node dev.js",
     "lint": "eslint ./src/**/*.js?\\(x\\)",
     "start": "node server.js",
-    "test": "mocha --compilers js:babel-core/register --recursive"
+    "test": "NODE_ENV=test mocha --compilers js:babel-core/register --recursive"
   },
   "author": "PrimarilySnark",
   "license": "UNLICENSED",
@@ -57,7 +57,9 @@
     "less": "^2.7.1",
     "less-loader": "^2.2.3",
     "mocha": "^3.0.2",
+    "mockgoose": "^6.0.6",
     "style-loader": "^0.13.1",
+    "supertest": "^2.0.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   }
