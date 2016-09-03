@@ -18,7 +18,7 @@ function handleRouterUpdate() {
   activate(state, [
     store,
     state,
-    this.history.push,
+    this.router.push,
   ]);
 }
 
