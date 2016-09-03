@@ -6,6 +6,7 @@ import passport from 'passport';
 import session from 'express-session';
 
 import { addWebpackDevProxy } from './dev';
+import { createApiRequestHandler } from './api';
 import { createAppRequestHandler } from '../app/server/main';
 import { setupGoogleOAuth } from './auth';
 import config from './config';
@@ -72,11 +73,14 @@ app.get('/auth/google/callback', passport.authenticate('google', {
 // This can be used down the line by the top level component of the React render
 app.use((request, response, next) => {
   request.store = {
+    ...request.store,
     currentUser: request.user,
   };
 
   next();
 });
+
+app.use('/api', createApiRequestHandler());
 
 // Setup usage of React router for routing on all other pages
 app.use(createAppRequestHandler());

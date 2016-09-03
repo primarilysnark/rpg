@@ -1,7 +1,7 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { auth, plus } from 'googleapis';
 
-import User from './models/user';
+import { User } from './models';
 import config from './config';
 
 const plusClient = plus('v1');
