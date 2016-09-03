@@ -17,8 +17,8 @@ export class App extends Component {
   render() {
     return (
       <div className="app">
-        <header className="app__header">RPG - {this.props.currentUser.name}</header>
         <div className="app__content">
+          {this.props.currentUser.name}
           {this.props.children}
         </div>
       </div>

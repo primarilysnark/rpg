@@ -1,4 +1,5 @@
 const DEFAULT_USER_STATE = {
+  id: '-1',
   name: '',
 };
 
