@@ -6,6 +6,7 @@ import request from 'supertest';
 
 import { createApiRequestHandler } from '../src/server/api';
 import testCampaign from './data/campaign';
+import badTestCampaign from './data/bad-campaign';
 import config from '../src/server/config';
 
 const app = createApiRequestHandler();
@@ -28,9 +29,8 @@ describe('campaigns', () => {
     })
   );
 
-  it('should be getable', () => request(app)
+  it('fetch existing campaign', () => request(app)
     .get(`/campaigns/${campaignId}`)
-    .send(testCampaign)
     .expect(200, {
       data: {
         ...testCampaign,
@@ -39,7 +39,17 @@ describe('campaigns', () => {
     })
   );
 
-  it('should be creatable', () => request(app)
+  it('fail to fetch missing campaign with invalid format id', () => request(app)
+    .get('/campaigns/not-an-id')
+    .expect(404)
+  );
+
+  it('fail to fetch missing campaign with valid format id', () => request(app)
+    .get('/campaigns/57cb3f3e37237d091550e5ff')
+    .expect(404)
+  );
+
+  it('create new campaign', () => request(app)
     .post('/campaigns')
     .send(testCampaign)
     .expect(201)
@@ -48,7 +58,13 @@ describe('campaigns', () => {
     })
   );
 
-  it('should be listable', () => request(app)
+  it('fail to create new campaign with bad data', () => request(app)
+    .post('/campaigns')
+    .send(badTestCampaign)
+    .expect(400)
+  );
+
+  it('list all campaigns', () => request(app)
     .get('/campaigns')
     .expect(200)
     .expect(res => {
@@ -57,9 +73,14 @@ describe('campaigns', () => {
     })
   );
 
-  it('should be deletable', () => request(app)
+  it('delete existing campaign', () => request(app)
     .del(`/campaigns/${campaignId}`)
     .expect(204)
+  );
+
+  it('fail to delete missing campaign', () => request(app)
+    .del('/campaigns/not-an-id')
+    .expect(404)
   );
 });
 
