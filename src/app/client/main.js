@@ -8,6 +8,8 @@ import { getViewRoot } from '../shared/root';
 import { routes } from '../shared/routes';
 import * as clients from './http';
 
+import './styles/common.less';
+
 const store = configureStore(window.__INITIAL_STATE__ || {}, clients);
 
 function handleRouterUpdate() {
