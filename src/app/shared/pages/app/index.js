@@ -2,6 +2,8 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
+import { Home } from '../../pages/home';
+
 import './styles.less';
 
 function mapStateToProps({ currentUser }) {
@@ -27,6 +29,12 @@ export class App extends Component {
   toggleUserMenu = () => this.setState({ isUserMenuOpen: !this.state.isUserMenuOpen });
 
   render() {
+    if (this.props.currentUser.id === '-1') {
+      return (
+        <Home />
+      );
+    }
+
     return (
       <div className="app">
         <header className="app__header">
@@ -49,27 +57,23 @@ export class App extends Component {
               <li className="app__content__navigation__breadcrumbs__option">Create</li>
             </ul>
             <div className="app__content__navigation__user">
-              {this.props.currentUser.id === '-1' ? (
-                <a className="app__content__navigation__user__sign-in-link" href="/auth/google">Sign in</a>
-              ) : (
-                <div className="app__content__navigation__user__info user-info">
-                  <button className="user-info__avatar" onClick={this.toggleUserMenu} style={{ backgroundImage: `url('${this.props.currentUser.avatarUrl}')` }} />
-                  <div className={`user-info__menu ${this.state.isUserMenuOpen ? 'user-info__menu--open' : ''}`}>
-                    <div className="user-info__menu__details">
-                      <img className="user-info__menu__details__avatar" role="presentation" src={this.props.currentUser.avatarUrl} />
-                      <div className="user-info__menu__details__content">
-                        <div className="user-info__menu__details__content__name">{this.props.currentUser.name}</div>
-                        <div className="user-info__menu__details__content__email">{this.props.currentUser.email}</div>
-                      </div>
-                    </div>
-                    <div className="user-info__menu__actions">
-                      <form method="POST" action="/signout">
-                        <input type="submit" className="user-info__menu__actions__sign-out-link" value="Sign out" />
-                      </form>
+              <div className="app__content__navigation__user__info user-info">
+                <button className="user-info__avatar" onClick={this.toggleUserMenu} style={{ backgroundImage: `url('${this.props.currentUser.avatarUrl}')` }} />
+                <div className={`user-info__menu ${this.state.isUserMenuOpen ? 'user-info__menu--open' : ''}`}>
+                  <div className="user-info__menu__details">
+                    <img className="user-info__menu__details__avatar" role="presentation" src={this.props.currentUser.avatarUrl} />
+                    <div className="user-info__menu__details__content">
+                      <div className="user-info__menu__details__content__name">{this.props.currentUser.name}</div>
+                      <div className="user-info__menu__details__content__email">{this.props.currentUser.email}</div>
                     </div>
                   </div>
+                  <div className="user-info__menu__actions">
+                    <form method="POST" action="/signout">
+                      <input type="submit" className="user-info__menu__actions__sign-out-link" value="Sign out" />
+                    </form>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           </nav>
           <div className="app__content__page">

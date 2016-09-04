@@ -1,21 +1,12 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
 
-import { requireAnonymousUser } from '../../activators/auth-activators';
+import './styles.less';
 
-function mapStateToProps({ currentUser }) {
-  return { currentUser };
-}
-
-@connect(mapStateToProps)
-export class Home extends Component {
-  static activate(store, routerState, navigate) {
-    return requireAnonymousUser(store, routerState, navigate);
-  }
-
-  render() {
-    return (
-      <div>Home page</div>
-    );
-  }
-}
+export const Home = () => (
+  <div className="splash-page">
+    <div className="splash-page__tagline">Begin Your Adventure</div>
+    <div className="splash-page__actions">
+      <a className="splash-page__actions__login" href="/auth/google">Sign in with Google+</a>
+    </div>
+  </div>
+);

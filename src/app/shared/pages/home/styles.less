@@ -1,0 +1,35 @@
+@import '../../../client/styles/variables.less';
+@import '../../../client/styles/mixins.less';
+
+.splash-page {
+  background: url('/public/images/background.jpg') center center;
+  background-size: cover;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  &__tagline {
+    color: @white;
+    font: 44px @font-stack;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50px);
+  }
+
+  &__actions {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, 50px);
+
+    &__login {
+      .button();
+      background: @gold;
+      color: @white;
+      padding: 16px 32px;
+    }
+  }
+}
