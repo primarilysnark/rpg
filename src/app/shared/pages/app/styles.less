@@ -24,16 +24,20 @@
 
           &:after {
             color: @grey;
-            content: '\BB';
+            content: '\203A';
             display: inline-block;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 300;
             margin: -9px 8px 0 10px;
             vertical-align: middle;
           }
 
-          &:last-of-type:after {
-            content: none;
+          &:last-of-type {
+            color: @dark-grey;
+
+            &:after {
+              content: none;
+            }
           }
         }
       }

@@ -54,7 +54,7 @@ export class App extends Component {
           <nav className="app__content__navigation">
             <ul className="app__content__navigation__breadcrumbs">
               <li className="app__content__navigation__breadcrumbs__option">Characters</li>
-              <li className="app__content__navigation__breadcrumbs__option">Create</li>
+              <li className="app__content__navigation__breadcrumbs__option">Create a Character</li>
             </ul>
             <div className="app__content__navigation__user">
               <div className="app__content__navigation__user__info user-info">
