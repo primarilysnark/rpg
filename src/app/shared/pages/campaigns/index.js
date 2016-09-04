@@ -8,7 +8,7 @@ function mapStateToProps({ currentUser }) {
 }
 
 @connect(mapStateToProps)
-export class Campaign extends Component {
+export class Campaigns extends Component {
   static activate(store, routerState, navigate) {
     return requireAuthenticatedUser(store, routerState, navigate);
   }
