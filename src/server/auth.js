@@ -101,6 +101,8 @@ export function setupGoogleOAuth(passport) {
       .then(result => callback(null, {
         ...result.user,
         id,
+        avatarUrl: result.response.image.url,
+        email: result.response.emails[0].value,
         name: result.response.displayName,
         nickname: result.response.nickname,
       }));

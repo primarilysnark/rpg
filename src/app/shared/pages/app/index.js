@@ -2,6 +2,8 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
+import './styles.less';
+
 function mapStateToProps({ currentUser }) {
   return { currentUser };
 }
@@ -11,35 +13,68 @@ export class App extends Component {
   static propTypes = {
     children: PropTypes.node,
     currentUser: PropTypes.shape({
+      avatarUrl: PropTypes.string,
+      email: PropTypes.string,
       id: PropTypes.string.isRequired,
       name: PropTypes.string,
     }).isRequired,
   };
+
+  state = {
+    isUserMenuOpen: false,
+  };
+
+  toggleUserMenu = () => this.setState({ isUserMenuOpen: !this.state.isUserMenuOpen });
 
   render() {
     return (
       <div className="app">
         <header className="app__header">
           <nav className="app__header__nav">
-            <Link to="/">
-              <span className="app__header__nav__text">Archmage</span>
-            </Link>
+            <Link className="app__header__nav__text" to="/">Archmage</Link>
+            <ul className="app__header__nav__options">
+              <li className="app__header__nav__options__link">
+                <Link to="/campaigns">Campaigns</Link>
+              </li>
+              <li className="app__header__nav__options__link">
+                <Link to="/characters">Characters</Link>
+              </li>
+            </ul>
           </nav>
-          <div className="app__header__user">
-            {this.props.currentUser.id === '-1' ? (
-              <a className="app__header__user__sign-in-link" href="/auth/google">Sign in</a>
-            ) : (
-              <div className="app__header__user__info">
-                <span className="app__header__user__info__name">{this.props.currentUser.name}</span>
-                <form method="POST" action="/signout">
-                  <input type="submit" className="app__header__user__info__sign-out-link" value="Sign out" />
-                </form>
-              </div>
-            )}
-          </div>
         </header>
         <div className="app__content">
-          {this.props.children}
+          <nav className="app__content__navigation">
+            <ul className="app__content__navigation__breadcrumbs">
+              <li className="app__content__navigation__breadcrumbs__option">Characters</li>
+              <li className="app__content__navigation__breadcrumbs__option">Create</li>
+            </ul>
+            <div className="app__content__navigation__user">
+              {this.props.currentUser.id === '-1' ? (
+                <a className="app__content__navigation__user__sign-in-link" href="/auth/google">Sign in</a>
+              ) : (
+                <div className="app__content__navigation__user__info user-info">
+                  <button className="user-info__avatar" onClick={this.toggleUserMenu} style={{ backgroundImage: `url('${this.props.currentUser.avatarUrl}')` }} />
+                  <div className={`user-info__menu ${this.state.isUserMenuOpen ? 'user-info__menu--open' : ''}`}>
+                    <div className="user-info__menu__details">
+                      <img className="user-info__menu__details__avatar" role="presentation" src={this.props.currentUser.avatarUrl} />
+                      <div className="user-info__menu__details__content">
+                        <div className="user-info__menu__details__content__name">{this.props.currentUser.name}</div>
+                        <div className="user-info__menu__details__content__email">{this.props.currentUser.email}</div>
+                      </div>
+                    </div>
+                    <div className="user-info__menu__actions">
+                      <form method="POST" action="/signout">
+                        <input type="submit" className="user-info__menu__actions__sign-out-link" value="Sign out" />
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </nav>
+          <div className="app__content__page">
+            {this.props.children}
+          </div>
         </div>
       </div>
     );

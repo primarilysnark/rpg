@@ -13,6 +13,7 @@ export const Html = (props) => {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         {head.meta.toComponent()}
         {head.title.toComponent()}
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet" />
         <link rel="shortcut icon" href="/public/images/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="/dist/style.css" />
       </head>

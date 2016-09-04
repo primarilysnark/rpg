@@ -1,0 +1,194 @@
+@import '../../../client/styles/variables.less';
+@import '../../../client/styles/mixins.less';
+
+.app {
+  display: flex;
+
+  &__content {
+    flex: 1;
+
+    &__navigation {
+      background: @light-grey;
+      height: 40px;
+      padding: 12px 32px;
+
+      &__breadcrumbs {
+        float: left;
+
+        &__option {
+          color: @grey;
+          display: inline-block;
+          font: 14px/40px @font-stack;
+          text-decoration: none;
+          text-transform: uppercase;
+
+          &:after {
+            color: @grey;
+            content: '\BB';
+            display: inline-block;
+            font-size: 28px;
+            font-weight: 300;
+            margin: -9px 8px 0 10px;
+            vertical-align: middle;
+          }
+
+          &:last-of-type:after {
+            content: none;
+          }
+        }
+      }
+
+      &__user {
+        float: right;
+      }
+    }
+
+    &__page {
+      padding: 20px 32px;
+    }
+  }
+
+  &__header {
+    width: 120px;
+
+    &__nav {
+      background: @dark-grey;
+      position: fixed;
+      width: 120px;
+      top: 0;
+      bottom: 0;
+      left: 0;
+
+      &__options {
+        &__link {
+          display: block;
+          margin: 40px 0;
+          text-align: center;
+
+          a {
+            color: @grey;
+            text-decoration: none;
+
+            &:hover {
+              color: @white;
+            }
+          }
+        }
+      }
+
+      &__text {
+        background: @gold;
+        color: @white;
+        display: block;
+        font: 20px/64px @font-stack;
+        height: 64px;
+        margin: 0 0 12px;
+        position: relative;
+        text-align: center;
+        text-decoration: none;
+
+        &:after {
+          border-left: 60px solid transparent;
+          border-right: 60px solid transparent;
+          border-top: 12px solid @gold;
+          bottom: -12px;
+          content: '';
+          left: 0;
+          position: absolute;
+        }
+      }
+    }
+  }
+}
+
+.user-info {
+  position: relative;
+
+  &__avatar {
+    .button();
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border: 1px solid @white;
+    border-radius: 50%;
+    box-shadow: @standard-box-shadow;
+    height: 40px;
+    width: 40px;
+  }
+
+  &__menu {
+    background: @white;
+    border: 1px solid @grey-highlight;
+    box-shadow: @standard-box-shadow;
+    display: none;
+    position: absolute;
+    right: 6px;
+    top: 50px;
+
+    &:after {
+      border-bottom: 8px solid @white;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      content: '';
+      display: block;
+      position: absolute;
+      top: -8px;
+      right: 6px;
+    }
+
+    &:before {
+      border-bottom: 8px solid @grey-highlight;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      content: '';
+      display: block;
+      position: absolute;
+      top: -9px;
+      right: 6px;
+    }
+
+    &__actions {
+      background: @light-grey;
+      border-top: 1px solid @grey-highlight;
+      padding: 8px 16px;
+
+      &__sign-out-link {
+        .button();
+        background: transparent;
+        border: 1px solid @grey;
+        color: @dark-grey;
+        font: 12px @font-stack;
+        padding: 4px 12px;
+      }
+    }
+
+    &__details {
+      display: flex;
+      padding: 16px 16px 8px;
+
+      &__avatar {
+        border-radius: 50%;
+        height: 50px;
+        width: 50px;
+      }
+
+      &__content {
+        flex: 1;
+        padding: 5px 0 5px 16px;
+
+        &__name {
+          font: 700 14px/20px @font-stack;
+        }
+
+        &__email {
+          color: @dark-grey;
+          font: 14px/20px @font-stack;
+        }
+      }
+    }
+
+    &--open {
+      display: block;
+    }
+  }
+}
