@@ -1,7 +1,7 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { auth, plus } from 'googleapis';
 
-import { User } from './models';
+import { User, prettifyUser } from './models';
 import config from './config';
 
 const plusClient = plus('v1');
@@ -98,13 +98,6 @@ export function setupGoogleOAuth(passport) {
           });
         });
       }))
-      .then(result => callback(null, {
-        ...result.user,
-        id,
-        avatarUrl: result.response.image.url,
-        email: result.response.emails[0].value,
-        name: result.response.displayName,
-        nickname: result.response.nickname,
-      }));
+      .then(({ user, response }) => callback(null, prettifyUser(user, response)));
   });
 }
