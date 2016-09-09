@@ -53,52 +53,66 @@
   }
 
   &__header {
-    width: 120px;
+    width: 200px;
 
     &__nav {
       background: @dark-grey;
       position: fixed;
-      width: 120px;
+      width: inherit;
       top: 0;
       bottom: 0;
       left: 0;
 
-      &__options {
-        &__link {
-          display: block;
-          margin: 40px 0;
-          text-align: center;
-
-          a {
-            color: @grey;
-            text-decoration: none;
-
-            &:hover {
-              color: @white;
-            }
-          }
-        }
-      }
-
-      &__text {
+      &__create {
+        .button();
         background: @gold;
         color: @white;
         display: block;
-        font: 20px/64px @font-stack;
-        height: 64px;
-        margin: 0 0 12px;
+        font: 12px @font-stack;
+        margin: 24px 16px;
+        padding: 8px;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      &__home {
+        color: @white;
+        display: block;
+        margin: 20px 0 12px;
         position: relative;
         text-align: center;
         text-decoration: none;
 
-        &:after {
-          border-left: 60px solid transparent;
-          border-right: 60px solid transparent;
-          border-top: 12px solid @gold;
-          bottom: -12px;
-          content: '';
-          left: 0;
-          position: absolute;
+        svg {
+          height: 80px;
+          width: auto;
+        }
+      }
+
+      &__options {
+        margin: 24px 0 0;
+
+        &__link {
+          display: block;
+          font: 12px @font-stack;
+          margin: 12px 0;
+          padding: 0 16px;
+          text-align: left;
+          text-transform: uppercase;
+
+          &__anchor {
+            color: @white;
+            text-decoration: none;
+
+            &:hover {
+              color: @gold;
+            }
+
+            &--active {
+              color: @gold;
+            }
+          }
         }
       }
     }

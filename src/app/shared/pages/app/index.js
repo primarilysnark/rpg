@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
 import { Home } from '../../pages/home';
+import { TwentySidedDieIcon } from '../../components/icons/common-icons.g';
 
 import './styles.less';
 
@@ -39,13 +40,16 @@ export class App extends Component {
       <div className="app">
         <header className="app__header">
           <nav className="app__header__nav">
-            <Link className="app__header__nav__text" to="/">Archmage</Link>
+            <Link className="app__header__nav__home" to="/">
+              <TwentySidedDieIcon />
+            </Link>
+            <Link className="app__header__nav__create" to="/campaigns">Create a Character</Link>
             <ul className="app__header__nav__options">
               <li className="app__header__nav__options__link">
-                <Link to="/campaigns">Campaigns</Link>
+                <Link activeClassName="app__header__nav__options__link__anchor--active" className="app__header__nav__options__link__anchor" to="/campaigns">Campaigns</Link>
               </li>
               <li className="app__header__nav__options__link">
-                <Link to="/characters">Characters</Link>
+                <Link activeClassName="app__header__nav__options__link__anchor--active" className="app__header__nav__options__link__anchor" to="/characters">Characters</Link>
               </li>
             </ul>
           </nav>

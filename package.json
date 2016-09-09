@@ -7,6 +7,7 @@
     "dev": "node dev.js",
     "lint": "eslint ./src/**/*.js?\\(x\\)",
     "start": "node server.js",
+    "svgs": "node ./tools/civilize-svgs.js ./svgs ./src/app/shared/components/icons",
     "test": "NODE_ENV=test mocha --compilers js:babel-core/register --recursive"
   },
   "author": "PrimarilySnark",
@@ -58,8 +59,10 @@
     "less-loader": "^2.2.3",
     "mocha": "^3.0.2",
     "mockgoose": "^6.0.6",
+    "node-xml": "^1.0.2",
     "style-loader": "^0.13.1",
     "supertest": "^2.0.0",
+    "svgo": "^0.7.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   }
