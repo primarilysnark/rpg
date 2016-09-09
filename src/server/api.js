@@ -9,6 +9,7 @@ import {
   getCampaign,
   getCampaigns,
   getUser,
+  getUsers,
   deleteCampaign,
 } from './controllers';
 
@@ -54,6 +55,9 @@ export function createApiRequestHandler() {
   app.route('/campaigns/:campaignId')
     .get(getCampaign)
     .delete(deleteCampaign);
+
+  app.route('/users')
+    .get(setupGoogleClient(getUsers));
 
   app.route('/users/:userId')
     .get(setupGoogleClient(getUser));

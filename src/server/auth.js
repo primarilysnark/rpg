@@ -1,10 +1,10 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { auth, plus } from 'googleapis';
+import { auth, people } from 'googleapis';
 
 import { User, prettifyUser } from './models';
 import config from './config';
 
-const plusClient = plus('v1');
+const peopleClient = people('v1');
 
 export function setupGoogleOAuth(passport) {
   passport.use(new GoogleStrategy({
@@ -87,7 +87,10 @@ export function setupGoogleOAuth(passport) {
         });
       })
       .then(user => new Promise((resolve, reject) => {
-        plusClient.people.get({ userId: 'me', auth: oauth2Client }, (error, response) => {
+        peopleClient.people.get({
+          resourceName: 'people/me',
+          auth: oauth2Client,
+        }, (error, response) => {
           if (error) {
             reject(error);
           }

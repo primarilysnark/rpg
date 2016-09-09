@@ -60,7 +60,12 @@ app.use(passport.session());
 app.get('/auth/google', passport.authenticate('google', {
   accessType: 'offline',
   prompt: 'consent',
-  scope: ['profile', 'email'],
+  scope: [
+    'profile',
+    'email',
+    'https://www.googleapis.com/auth/contacts.readonly',
+    'https://www.googleapis.com/auth/plus.login',
+  ],
 }));
 
 app.get('/auth/google/callback', passport.authenticate('google', {
