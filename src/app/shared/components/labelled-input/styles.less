@@ -1,0 +1,44 @@
+@import '../../../client/styles/variables.less';
+@import '../../../client/styles/mixins.less';
+
+.labelled-input {
+  float: left;
+  width: 50%;
+
+  &__label {
+    box-sizing: border-box;
+    float: left;
+    margin: 0;
+    padding: 0 12px 24px;
+    width: 100%;
+
+    &__input {
+      border-bottom: 1px solid @grey;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      box-sizing: border-box;
+      color: @dark-grey;
+      font: 400 20px/32px @font-stack;
+      width: 100%;
+
+      &:focus {
+        border-bottom-color: @dark-grey;
+        outline: none;
+      }
+    }
+
+    &:after {
+      color: @grey;
+      content: attr(data-label);
+      display: inline-block;
+      font: 400 12px @font-stack;
+      margin: 4px 0 0;
+      text-transform: uppercase;
+    }
+  }
+
+  &--2 {
+    width: 100%;
+  }
+}

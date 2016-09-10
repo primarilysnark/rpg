@@ -43,7 +43,7 @@ export class App extends Component {
             <Link className="app__header__nav__home" to="/">
               <TwentySidedDieIcon />
             </Link>
-            <Link className="app__header__nav__create" to="/characters">Create a Character</Link>
+            <Link className="app__header__nav__create" to="/characters/create">Create a Character</Link>
             <ul className="app__header__nav__options">
               <li className="app__header__nav__options__link">
                 <Link activeClassName="app__header__nav__options__link__anchor--active" className="app__header__nav__options__link__anchor" to="/campaigns">Campaigns</Link>

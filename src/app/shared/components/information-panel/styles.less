@@ -1,0 +1,49 @@
+@import '../../../client/styles/variables.less';
+
+.information-panel {
+  float: left;
+  width: 50%;
+
+  &__table {
+    background: @light-grey;
+    margin: 12px;
+
+    &__description {
+      color: @dark-grey;
+      padding: 0 20px 20px;
+
+      p {
+        font: 400 14px/20px 'Open Sans', sans-serif;
+        margin: 0;
+      }
+    }
+
+    &__heading {
+      color: @dark-grey;
+      font: 400 18px/32px 'Open Sans', sans-serif;
+      padding: 20px;
+      position: relative;
+
+      &:not(:last-of-type):after {
+        border-right: 1px solid @light-grey;
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 20px;
+        bottom: 20px;
+      }
+
+      &:before {
+        color: @grey;
+        content: attr(data-label);
+        display: block;
+        font: 400 11px 'Open Sans', sans-serif;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  &--2 {
+    width: 100%;
+  }
+}
