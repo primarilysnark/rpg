@@ -101,6 +101,7 @@ export function setupGoogleOAuth(passport) {
           });
         });
       }))
-      .then(({ user, response }) => callback(null, prettifyUser(user, response)));
+      .then(({ user, response }) => callback(null, prettifyUser(user, response)))
+      .catch(error => callback(error));
   });
 }
