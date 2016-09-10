@@ -64,26 +64,26 @@ export function setupGoogleOAuth(passport) {
 
         const currentDate = Date.now();
 
-        return new Promise((resolve, reject) => {
-          if (user.google.expireTime <= currentDate) {
-            oauth2Client.refreshAccessToken((error, response) => {
-              if (error) {
-                reject(error);
-              }
+        if (user.google.expireTime > currentDate) {
+          return user;
+        }
 
-              resolve(user.update({
-                google: {
-                  id: user.google.id,
-                  token: response.access_token,
-                  refreshToken: user.google.refreshToken,
-                  expireTime: response.expiry_date,
-                },
-              })
-                .then(() => user));
-            });
-          } else {
-            resolve(user);
-          }
+        return new Promise((resolve, reject) => {
+          oauth2Client.refreshAccessToken((error, response) => {
+            if (error) {
+              reject(error);
+            }
+
+            resolve(user.update({
+              google: {
+                id: user.google.id,
+                token: response.access_token,
+                refreshToken: user.google.refreshToken,
+                expireTime: response.expiry_date,
+              },
+            })
+              .then(() => user));
+          });
         });
       })
       .then(user => new Promise((resolve, reject) => {
