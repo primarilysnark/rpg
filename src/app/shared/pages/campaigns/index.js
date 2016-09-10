@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 
 import { requireAuthenticatedUser } from '../../activators/auth-activators';
@@ -29,6 +30,7 @@ export class Campaigns extends Component {
   render() {
     return (
       <div>
+        <Helmet title="Campaigns" />
         <div>Campaigns</div>
         <ul>
           {this.props.campaigns.campaigns.map(campaign => (

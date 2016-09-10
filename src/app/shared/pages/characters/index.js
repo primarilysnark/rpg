@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 
 import { requireAuthenticatedUser } from '../../activators/auth-activators';
@@ -15,7 +16,10 @@ export class Characters extends Component {
 
   render() {
     return (
-      <div>Characters page</div>
+      <div>
+        <Helmet title="Characters" />
+        <div>Characters page</div>
+      </div>
     );
   }
 }

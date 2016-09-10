@@ -1,4 +1,6 @@
 import React, { PropTypes } from 'react';
+import Helmet from 'react-helmet';
+
 import { Wizard } from '../../components/wizard';
 
 const STEPS = [
@@ -26,6 +28,7 @@ const STEPS = [
 
 export const CreateCharacter = (props) => (
   <Wizard steps={STEPS} currentStep={0}>
+    <Helmet title="Create Characters" />
     {props.children}
   </Wizard>
 );
