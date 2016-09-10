@@ -1,4 +1,4 @@
-/* globals afterEach, before, beforeEach, describe, it */
+/* globals after, afterEach, before, beforeEach, describe, it */
 import expect from 'expect';
 import mockgoose from 'mockgoose';
 import mongoose from 'mongoose';
@@ -11,15 +11,15 @@ import config from '../src/server/config';
 
 const app = createApiRequestHandler();
 
-before(done => {
-  mockgoose(mongoose).then(() => {
-    mongoose.Promise = global.Promise;
-    mongoose.connect(config.mongodb.connectionUrl, (err) => done(err));
-  });
-});
-
 describe('campaigns', () => {
   let campaignId = null;
+
+  before(done => {
+    mockgoose(mongoose).then(() => {
+      mongoose.Promise = global.Promise;
+      mongoose.connect(config.mongodb.connectionUrl, (err) => done(err));
+    });
+  });
 
   beforeEach(() => request(app)
     .post('/campaigns')
@@ -28,6 +28,14 @@ describe('campaigns', () => {
       campaignId = res.body.data.id;
     })
   );
+
+  after(done => {
+    mongoose.disconnect(() => done());
+  });
+
+  afterEach(() => {
+    mockgoose.reset();
+  });
 
   it('fetch existing campaign', () => request(app)
     .get(`/campaigns/${campaignId}`)
@@ -82,8 +90,4 @@ describe('campaigns', () => {
     .del('/campaigns/not-an-id')
     .expect(404)
   );
-});
-
-afterEach(() => {
-  mockgoose.reset();
 });
