@@ -28,7 +28,7 @@ const STEPS = [
 
 export const CreateCharacter = (props) => (
   <Wizard steps={STEPS} currentStep={0}>
-    <Helmet title="Create Characters" />
+    <Helmet title="Create Character" />
     {props.children}
   </Wizard>
 );
