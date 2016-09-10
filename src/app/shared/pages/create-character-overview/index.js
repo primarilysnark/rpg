@@ -6,6 +6,8 @@ import { LabelledInput } from '../../components/labelled-input';
 import { InformationPanel } from '../../components/information-panel';
 import { WizardPanel } from '../../components/wizard-panel';
 import {
+  clearRaces,
+  searchRaces,
   updateAlignment,
   updateBackground,
   updateName,
@@ -14,12 +16,14 @@ import {
 
 import './styles.less';
 
-function mapStateToProps({ characterCreator }) {
-  return { characterCreator };
+function mapStateToProps({ characterCreator, races }) {
+  return { characterCreator, races };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
+    clearRaces: () => dispatch(clearRaces()),
+    searchRaces: (search) => dispatch(searchRaces(search)),
     updateAlignment: (alignment) => dispatch(updateAlignment(alignment)),
     updateBackground: (background) => dispatch(updateBackground(background)),
     updateName: (name) => dispatch(updateName(name)),
@@ -38,11 +42,21 @@ export class CreateCharacterOverview extends Component {
         race: PropTypes.string.isRequired,
       }).isRequired,
     }).isRequired,
+    clearRaces: PropTypes.func.isRequired,
+    races: PropTypes.shape({
+      results: PropTypes.array,
+    }).isRequired,
+    searchRaces: PropTypes.func.isRequired,
     updateAlignment: PropTypes.func.isRequired,
     updateBackground: PropTypes.func.isRequired,
     updateName: PropTypes.func.isRequired,
     updateRace: PropTypes.func.isRequired,
   };
+
+  setRace = (race) => {
+    this.props.clearRaces();
+    this.props.updateRace(race);
+  }
 
   updateAlignment = (event) => this.props.updateAlignment(event.target.value);
 
@@ -50,10 +64,13 @@ export class CreateCharacterOverview extends Component {
 
   updateName = (event) => this.props.updateName(event.target.value);
 
-  updateRace = (event) => this.props.updateRace(event.target.value);
+  updateRace = (event) => {
+    this.props.updateRace(event.target.value);
+    this.props.searchRaces(event.target.value);
+  }
 
   renderRace = (race) => (
-    <button className="character-creator-suggestion character-creator-suggestion--race" onClick={() => this.props.updateRace(race.name)}>
+    <button className="character-creator-suggestion character-creator-suggestion--race" onClick={() => this.setRace(race.name)}>
       <span className="character-creator-suggestion__match">{this.props.characterCreator.overview.race}</span>{race.name.slice(this.props.characterCreator.overview.race.length)}
     </button>
   );
@@ -72,6 +89,7 @@ export class CreateCharacterOverview extends Component {
             label="Race"
             onChange={this.updateRace}
             size={1}
+            suggestions={this.props.races.results}
             suggestionTemplate={this.renderRace}
             value={this.props.characterCreator.overview.race}
           />

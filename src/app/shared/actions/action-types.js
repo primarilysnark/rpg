@@ -13,3 +13,8 @@ export const characterCreatorActions = {
   updateNameType: 'CHARACTER_CREATOR/UPDATE_NAME',
   updateRaceType: 'CHARACTER_CREATOR/UPDATE_RACE',
 };
+
+export const raceActions = {
+  clearRacesType: 'RACE/CLEAR_RACES',
+  searchRacesTypes: createAsyncActionTypes('RACE/SEARCH_RACES'),
+};
