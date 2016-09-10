@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 
+import { LabelledAutoCompleteInput } from '../../components/labelled-auto-complete-input';
 import { LabelledInput } from '../../components/labelled-input';
 import { InformationPanel } from '../../components/information-panel';
 import { WizardPanel } from '../../components/wizard-panel';
@@ -51,14 +52,41 @@ export class CreateCharacterOverview extends Component {
 
   updateRace = (event) => this.props.updateRace(event.target.value);
 
+  renderRace = (race) => (
+    <button className="character-creator-suggestion character-creator-suggestion--race" onClick={() => this.props.updateRace(race.name)}>
+      <span className="character-creator-suggestion__match">{this.props.characterCreator.overview.race}</span>{race.name.slice(this.props.characterCreator.overview.race.length)}
+    </button>
+  );
+
   render() {
     return (
       <div className="character-creator">
         <WizardPanel>
-          <LabelledInput label="Name" onChange={this.updateName} size={2} value={this.props.characterCreator.overview.name} />
-          <LabelledInput label="Race" onChange={this.updateRace} size={1} value={this.props.characterCreator.overview.race} />
-          <LabelledInput label="Background" onChange={this.updateBackground} size={1} value={this.props.characterCreator.overview.background} />
-          <LabelledInput label="Alignment" onChange={this.updateAlignment} size={1} value={this.props.characterCreator.overview.alignment} />
+          <LabelledInput
+            label="Name"
+            onChange={this.updateName}
+            size={2}
+            value={this.props.characterCreator.overview.name}
+          />
+          <LabelledAutoCompleteInput
+            label="Race"
+            onChange={this.updateRace}
+            size={1}
+            suggestionTemplate={this.renderRace}
+            value={this.props.characterCreator.overview.race}
+          />
+          <LabelledInput
+            label="Background"
+            onChange={this.updateBackground}
+            size={1}
+            value={this.props.characterCreator.overview.background}
+          />
+          <LabelledInput
+            label="Alignment"
+            onChange={this.updateAlignment}
+            size={1}
+            value={this.props.characterCreator.overview.alignment}
+          />
         </WizardPanel>
         <WizardPanel>
           <InformationPanel heading="Orc" label="Your race" size={2}>

@@ -1,0 +1,62 @@
+@import '../../../client/styles/variables.less';
+
+.labelled-auto-complete-input {
+  float: left;
+  width: 50%;
+
+  &__label {
+    box-sizing: border-box;
+    float: left;
+    margin: 0;
+    padding: 0 12px 24px;
+    position: relative;
+    width: 100%;
+
+    &__input {
+      border-bottom: 1px solid @grey;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      box-sizing: border-box;
+      color: @dark-grey;
+      font: 400 20px/32px 'Open Sans', sans-serif;
+      width: 100%;
+
+      &:focus {
+        border-bottom-color: @dark-grey;
+        outline: none;
+      }
+    }
+
+    &__suggestions {
+      background: @light-grey;
+      left: 12px;
+      list-style: none;
+      margin: 4px 0 0;
+      padding: 0;
+      position: absolute;
+      right: 12px;
+
+      &__option {
+        border-bottom: 1px solid @grey-highlight;
+
+        &:last-of-type {
+          border-bottom: none;
+        }
+      }
+    }
+
+    &:after {
+      color: @grey;
+      content: attr(data-label);
+      display: inline-block;
+      font: 400 12px 'Open Sans', sans-serif;
+      margin: 4px 0 0;
+      text-transform: uppercase;
+    }
+  }
+
+  &--2 {
+    width: 100%;
+  }
+}
