@@ -1,5 +1,3 @@
-'use strict'; // eslint-disable-line strict
-
 const fs = require('fs');
 const path = require('path');
 const Svgo = require('svgo');
@@ -15,84 +13,75 @@ if (commandLineArguments.length !== 2) {
   process.exit(1);
 }
 
-function statAsync(path) {
-  return new Promise(function(accept, reject) {
-    fs.stat(path, function(error, stat) {
+function statAsync(filePath) {
+  return new Promise((resolve, reject) => {
+    fs.stat(filePath, (error, stat) => {
       if (error || !stat) {
         reject(error || new Error('Failed stat'));
       } else {
-        accept({ path, stat });
+        resolve({
+          path: filePath,
+          stat,
+        });
       }
     });
   });
 }
 
 function findSvgsAsync(directory) {
-  return new Promise(function(accept, reject) {
-    fs.readdir(directory, function(error, files) {
+  return new Promise((resolve, reject) => {
+    fs.readdir(directory, (error, files) => {
       if (error || !files) {
         reject(error || new Error('No files.'));
       } else {
-        accept(files);
+        resolve(files);
       }
     });
-  }).then(function(files) {
-    return files.map(function(file) {
-      return path.join(directory, file);
-    });
-  }).then(function(files) {
-    return Promise.all(files.map(statAsync));
-  }).then(function(stats) {
-    return stats
-      .map(function(item) {
-        if (item.stat.isDirectory()) {
-          return { directory: item.path };
-        }
+  })
+  .then(files => files.map(file => path.join(directory, file)))
+  .then(files => Promise.all(files.map(statAsync)))
+  .then(stats => stats.map(item => {
+    if (item.stat.isDirectory()) {
+      return { directory: item.path };
+    }
 
-        if (item.stat.isFile()) {
-          return { file: item.path };
-        }
+    if (item.stat.isFile()) {
+      return { file: item.path };
+    }
 
-        return { other: item.path };
-      })
-    .filter(function(item) {
-      return item.directory || (item.file && path.extname(item.file) === '.svg');
-    });
-  }).then(function(filesAndDirectories) {
+    return { other: item.path };
+  })
+    .filter(item => item.directory || (item.file && path.extname(item.file) === '.svg'))
+  )
+  .then(filesAndDirectories => {
     const directories = filesAndDirectories
-      .map(function(item) { return item.directory; })
-      .filter(function(item) { return item; });
+      .map(item => item.directory)
+      .filter(item => item);
 
     const files = filesAndDirectories
-      .map(function(item) { return item.file; })
-      .filter(function(item) { return item; });
+      .map(item => item.file)
+      .filter(item => item);
 
     return Promise.all(files.concat(directories.map(findSvgsAsync)));
-  }).then(function(results) {
-    return results
-      .reduce(function(left, right) {
-        return left.concat(Array.isArray(right) ? right : [ right ]);
-      }, []);
-  });
+  })
+  .then(results => results.reduce((left, right) => left.concat(Array.isArray(right) ? right : [right]), []));
 }
 
 function convertToCamelCase(name) {
   return name.split('-')
-    .map(function(part, index) {
-      return index ? part[0].toUpperCase() + part.slice(1) : part;
-    }).join('');
+    .map((part, index) => (index ? part[0].toUpperCase() + part.slice(1) : part))
+    .join('');
 }
 
 function convertToPascalCase(name) {
   return name.split('-')
-    .map(function(part) {
-      return part[0].toUpperCase() + part.slice(1);
-    }).join('');
+    .map(part => part[0].toUpperCase() + part.slice(1))
+    .join('');
 }
 
 const supportedAttributes = {
   version: null,
-  class: 'className'
+  class: 'className',
 };
 
 [
@@ -118,7 +107,9 @@ const supportedAttributes = {
   'width',
   'x',
   'y',
-].forEach(function(attribute) { supportedAttributes[attribute] = convertToCamelCase(attribute); });
+].forEach(attribute => {
+  supportedAttributes[attribute] = convertToCamelCase(attribute);
+});
 
 const supportedElements = {
   title: null,
@@ -132,27 +123,29 @@ const supportedElements = {
   'path',
   'rect',
   'svg',
-].forEach(function(element) { supportedElements[element] = convertToCamelCase(element); });
+].forEach(element => {
+  supportedElements[element] = convertToCamelCase(element);
+});
 
 function getFileContentAsync(filePath) {
-  return new Promise(function(accept, reject) {
-    fs.readFile(filePath, 'utf8', function(error, data) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, 'utf8', (error, data) => {
       if (error || !data) {
-        reject(error || new Error('No file content for ' + filePath));
+        reject(error || new Error(`No file content for ${filePath}`));
       } else {
-        accept({ path: filePath, content: data });
+        resolve({ path: filePath, content: data });
       }
     });
   });
 }
 
 function optimizeSvgAsync(file) {
-  return new Promise(function(accept, reject) {
-    svgo.optimize(file.content, function(result) {
+  return new Promise((resolve, reject) => {
+    svgo.optimize(file.content, result => {
       if (result.error) {
         reject(result);
       } else {
-        accept({ path: file.path, content: result.data });
+        resolve({ path: file.path, content: result.data });
       }
     });
   });
@@ -160,23 +153,23 @@ function optimizeSvgAsync(file) {
 
 function convertSvgToJsxAsync(file) {
   const filePath = file.path;
-  return new Promise(function(accept, reject) {
+  return new Promise((resolve, reject) => {
     let methodBody = null;
     let rejected = false;
 
     const state = [];
 
-    const parser = new xml.SaxParser(function(events) {
-      events.onEndDocument(function() {
+    const parser = new xml.SaxParser((events) => {
+      events.onEndDocument(() => {
         if (rejected) {
           return;
         }
 
         if (!methodBody) {
-          reject(new Error('No root element in file ' + filePath));
+          reject(new Error(`No root element in file ${filePath}`));
         }
 
-        accept([
+        resolve([
           'export function ',
           convertToPascalCase(path.basename(filePath, '.svg')),
           '() {\n  return ',
@@ -184,7 +177,8 @@ function convertSvgToJsxAsync(file) {
           ';\n}\n',
         ].join(''));
       });
-      events.onStartElementNS(function(element, attributes) {
+
+      events.onStartElementNS((element, attributes) => {
         if (rejected) {
           return;
         }
@@ -197,7 +191,7 @@ function convertSvgToJsxAsync(file) {
 
         if (!outputElementName) {
           rejected = true;
-          reject(new Error('Unrecognized element ' + element + ' in file ' + filePath));
+          reject(new Error(`Unrecognized element ${element} in file ${filePath}`));
           return;
         }
 
@@ -205,7 +199,7 @@ function convertSvgToJsxAsync(file) {
         if (attributes.length) {
           const paramsBuilder = [];
 
-          attributes.forEach(function(pair) {
+          attributes.forEach(pair => {
             const outputAttributeName = supportedAttributes[pair[0]];
             if (outputAttributeName === null) {
               return;
@@ -213,22 +207,27 @@ function convertSvgToJsxAsync(file) {
 
             if (!outputAttributeName && !rejected) {
               rejected = true;
-              reject(new Error('Unrecognized attribute ' + pair[0] + ' in element ' + element + ' of file ' + filePath));
+              reject(new Error(`Unrecognized attribute ${pair[0]} in element ${element} of file ${filePath}`));
               return;
             }
 
-            paramsBuilder.push([ outputAttributeName, ': \'', pair[1], '\'' ].join(''));
+            paramsBuilder.push(`${outputAttributeName}: \'${pair[1]}\'`);
           });
 
           if (!rejected) {
             paramsBuilder.push();
-            params = '{ ' + paramsBuilder.join(', ') + ' }';
+            params = `{ ${paramsBuilder.join(', ')} }`;
           }
         }
 
-        state.push({ preamble: 'createElement(\'' + outputElementName + '\'', params, children: []});
+        state.push({
+          preamble: `createElement(\'${outputElementName}\'`,
+          params,
+          children: [],
+        });
       });
-      events.onEndElementNS(function() {
+
+      events.onEndElementNS(() => {
         if (rejected) {
           return;
         }
@@ -238,7 +237,7 @@ function convertSvgToJsxAsync(file) {
           return;
         }
 
-        const code = [ output.preamble ];
+        const code = [output.preamble];
         if (output.params) {
           code.push(', ', output.params);
         } else if (output.children.length) {
@@ -247,7 +246,7 @@ function convertSvgToJsxAsync(file) {
 
         if (output.children.length) {
           const indentation = new Array(state.length + 3).join('  ');
-          code.push(',\n', indentation, output.children.join(',\n' + indentation));
+          code.push(',\n', indentation, output.children.join(`,\n${indentation}`));
         }
 
         code.push(')');
@@ -258,13 +257,13 @@ function convertSvgToJsxAsync(file) {
           methodBody = code.join('');
         } else {
           rejected = true;
-          reject(new Error('Multiple root elements in file ' + filePath));
+          reject(new Error(`Multiple root elements in file ${filePath}`));
         }
       });
-      events.onError(function(message) {
+      events.onError(message => {
         if (!rejected) {
           rejected = true;
-          reject(new Error('Error from ' + file + ': ' + message));
+          reject(new Error(`Error from ${file}: ${message}`));
         }
       });
     });
@@ -280,12 +279,14 @@ function processSvgAsync(filePath) {
 }
 
 function writeFileAsync(filePath, content) {
-  return new Promise(function(accept, reject) {
-    fs.writeFile(filePath, content, { encoding: 'utf8' }, function(error) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filePath, content, {
+      encoding: 'utf8',
+    }, error => {
       if (error) {
         reject(error);
       } else {
-        accept();
+        resolve();
       }
     });
   });
@@ -293,46 +294,35 @@ function writeFileAsync(filePath, content) {
 
 const inputDirectory = path.resolve(path.normalize(commandLineArguments[0]));
 const outputDirectory = path.resolve(path.normalize(commandLineArguments[1]));
+
 try {
   if (!fs.statSync(outputDirectory).isDirectory()) {
-    console.error(outputDirectory + ' is not a directory.');
+    console.error(`${outputDirectory} is not a directory.`);
     process.exit(1);
   }
 } catch (x) {
-  console.error(outputDirectory + ' is not a directory.');
+  console.error(`${outputDirectory} is not a directory.`);
   process.exit(1);
 }
 
-findSvgsAsync(inputDirectory).then(function(filePaths) {
-  return Promise.all(filePaths.map(function(filePath) {
-    return processSvgAsync(filePath)
-      .then(function(method) {
-        const group = path.dirname(path.relative(inputDirectory, filePath));
-        return { group: group === '.' ? 'common' : group, definition: method };
-      });
-  }));
-}).then(function(methods) {
-  return methods.reduce(function(groups, method) {
-    if (!groups[method.group]) {
-      groups[method.group] = [];
-    }
+findSvgsAsync(inputDirectory).then(filePaths => Promise.all(filePaths.map(filePath => processSvgAsync(filePath)
+  .then(method => {
+    const group = path.dirname(path.relative(inputDirectory, filePath));
 
-    groups[method.group].push(method.definition);
-
-    return groups;
-  }, {});
-}).then(function(groups) {
-  return Object.keys(groups).map(function(groupName) {
     return {
-      path: path.join(outputDirectory, groupName + '-icons.g.js'),
-      content: 'import React from \'react\';\n\nconst createElement = React.createElement;\n\n' + groups[groupName].join('\n'),
+      group: group === '.' ? 'common' : group,
+      definition: method,
     };
+  }))))
+  .then(methods => methods.reduce((groups, method) => Object.assign({}, groups, {
+    [method.group]: (groups[method.group] || []).concat([method.definition]),
+  }), {}))
+  .then(groups => Object.keys(groups).map(groupName => ({
+    path: path.join(outputDirectory, `${groupName}-icons.g.js`),
+    content: `import React from \'react\';\n\nconst createElement = React.createElement;\n\n${groups[groupName].join('\n')}`,
+  })))
+  .then(outputFiles => Promise.all(outputFiles.map(file => writeFileAsync(file.path, file.content))))
+  .catch(error => {
+    console.error(error.stack || error);
+    process.exit(1);
   });
-}).then(function(outputFiles) {
-  return Promise.all(outputFiles.map(function(file) {
-    return writeFileAsync(file.path, file.content);
-  }));
-}).catch(function(error) {
-  console.error(error.stack || error);
-  process.exit(1);
-});
