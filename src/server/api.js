@@ -6,11 +6,15 @@ import { User } from './models';
 import config from './config';
 import {
   createCampaign,
+  createRace,
   getCampaign,
   getCampaigns,
+  getRace,
+  getRaces,
   getUser,
   getUsers,
   deleteCampaign,
+  deleteRace,
 } from './controllers';
 
 function requiresAuth(callback) {
@@ -61,6 +65,14 @@ export function createApiRequestHandler() {
 
   app.route('/users/:userId')
     .get(setupGoogleClient(getUser));
+
+  app.route('/races')
+    .get(getRaces)
+    .post(createRace);
+
+  app.route('/races/:raceId')
+    .get(getRace)
+    .delete(deleteRace);
 
   return app;
 }
