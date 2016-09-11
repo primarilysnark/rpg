@@ -6,8 +6,7 @@ import { LabelledInput } from '../../components/labelled-input';
 import { InformationPanel } from '../../components/information-panel';
 import { WizardPanel } from '../../components/wizard-panel';
 import {
-  clearRaces,
-  searchRaces,
+  fetchRaces,
   updateAlignment,
   updateBackground,
   updateName,
@@ -22,8 +21,7 @@ function mapStateToProps({ characterCreator, races }) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    clearRaces: () => dispatch(clearRaces()),
-    searchRaces: (search) => dispatch(searchRaces(search)),
+    fetchRaces: () => dispatch(fetchRaces()),
     updateAlignment: (alignment) => dispatch(updateAlignment(alignment)),
     updateBackground: (background) => dispatch(updateBackground(background)),
     updateName: (name) => dispatch(updateName(name)),
@@ -39,24 +37,26 @@ export class CreateCharacterOverview extends Component {
         alignment: PropTypes.string.isRequired,
         background: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
-        race: PropTypes.string.isRequired,
+        race: PropTypes.string,
       }).isRequired,
     }).isRequired,
-    clearRaces: PropTypes.func.isRequired,
     races: PropTypes.shape({
-      results: PropTypes.array,
+      results: PropTypes.objectOf(PropTypes.shape({
+        name: PropTypes.string.isRequired,
+      })),
     }).isRequired,
-    searchRaces: PropTypes.func.isRequired,
+    fetchRaces: PropTypes.func.isRequired,
     updateAlignment: PropTypes.func.isRequired,
     updateBackground: PropTypes.func.isRequired,
     updateName: PropTypes.func.isRequired,
     updateRace: PropTypes.func.isRequired,
   };
 
-  setRace = (race) => {
-    this.props.clearRaces();
-    this.props.updateRace(race);
+  componentDidMount() {
+    this.props.fetchRaces();
   }
+
+  setRace = (race) => this.props.updateRace(race == null ? null : race.id);
 
   updateAlignment = (event) => this.props.updateAlignment(event.target.value);
 
@@ -64,23 +64,15 @@ export class CreateCharacterOverview extends Component {
 
   updateName = (event) => this.props.updateName(event.target.value);
 
-  updateRace = (event) => {
-    this.props.updateRace(event.target.value);
-
-    if (event.target.value !== '') {
-      this.props.searchRaces(event.target.value);
-    } else {
-      this.props.clearRaces();
-    }
-  }
-
   renderRace = (race) => (
-    <button className="character-creator-suggestion character-creator-suggestion--race" onClick={() => this.setRace(race.name)}>
+    <button className="character-creator-suggestion character-creator-suggestion--race" onClick={() => this.setRace(race.id)}>
       <span className="character-creator-suggestion__match">{this.props.characterCreator.overview.race}</span>{race.name.slice(this.props.characterCreator.overview.race.length)}
     </button>
   );
 
   render() {
+    const races = Object.keys(this.props.races.results).map(raceKey => this.props.races.results[raceKey]);
+
     return (
       <div className="character-creator">
         <WizardPanel>
@@ -92,11 +84,11 @@ export class CreateCharacterOverview extends Component {
           />
           <LabelledAutoCompleteInput
             label="Race"
-            onChange={this.updateRace}
+            onChange={this.setRace}
             size={1}
-            suggestions={this.props.races.results}
+            suggestions={races}
             suggestionTemplate={this.renderRace}
-            value={this.props.characterCreator.overview.race}
+            value={this.props.characterCreator.overview.race == null ? '' : this.props.races.results[this.props.characterCreator.overview.race].name}
           />
           <LabelledInput
             label="Background"
@@ -112,9 +104,11 @@ export class CreateCharacterOverview extends Component {
           />
         </WizardPanel>
         <WizardPanel>
-          <InformationPanel heading="Orc" label="Your race" size={2}>
-            <p>Orcs are aggressive, callous, and domineering. Bullies by nature, they respect strength and power as the highest virtues. On an almost instinctive level, orcs believe they are entitled to anything they want unless someone stronger can stop them from seizing it.</p>
-          </InformationPanel>
+          {this.props.characterCreator.overview.race == null ? null : (
+            <InformationPanel heading={this.props.races.results[this.props.characterCreator.overview.race].name} label="Your race" size={2}>
+              <p>{this.props.races.results[this.props.characterCreator.overview.race].tagline}</p>
+            </InformationPanel>
+          )}
           <InformationPanel heading="Entertainer" label="Your background">
             <p>You thrive in front of an audience. You know how to entrance, entertain, and even inspire them.</p>
           </InformationPanel>

@@ -2,21 +2,42 @@ import { Race, prettifyRace } from '../models';
 import { sendBadRequest, sendNotFound } from './util';
 
 export function createRace(req, res) {
-  if (req.body.name == null) {
-    return sendBadRequest(res, 'Races must have a name');
-  }
-
-  if (typeof req.body.name !== 'string') {
-    return sendBadRequest(res, 'Race names must be strings');
+  if (req.body.alignment == null) {
+    return sendBadRequest(res, 'Races must have an alignment description.');
   }
 
   if (req.body.description == null) {
-    return sendBadRequest(res, 'Races must have a description');
+    return sendBadRequest(res, 'Races must have a description.');
+  }
+
+  if (req.body.name == null) {
+    return sendBadRequest(res, 'Races must have a name.');
+  }
+
+  if (req.body.physicalDescription == null) {
+    return sendBadRequest(res, 'Races must have a physical description.');
+  }
+
+  if (req.body.relations == null) {
+    return sendBadRequest(res, 'Races must have relations with other races.');
+  }
+
+  if (req.body.society == null) {
+    return sendBadRequest(res, 'Races must have a society description.');
+  }
+
+  if (req.body.tagline == null) {
+    return sendBadRequest(res, 'Races must have a tagline.');
   }
 
   return new Race({
-    name: req.body.name,
+    alignment: req.body.alignment,
     description: req.body.description,
+    name: req.body.name,
+    physicalDescription: req.body.physicalDescription,
+    relations: req.body.relations,
+    society: req.body.society,
+    tagline: req.body.tagline,
   })
     .save()
     .then(race => res.status(201).json({

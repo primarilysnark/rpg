@@ -19,29 +19,60 @@
       border-top: none;
       box-sizing: border-box;
       color: @dark-grey;
-      font: 400 20px/32px 'Open Sans', sans-serif;
+      font: 400 20px/34px 'Open Sans', sans-serif;
       width: 100%;
-
-      &:focus {
-        border-bottom-color: @dark-grey;
-        outline: none;
-      }
     }
 
-    &__suggestions {
-      background: @light-grey;
+    .react-tagsinput-remove {
+      cursor: text;
+      height: 35px;
       left: 12px;
-      list-style: none;
-      margin: 4px 0 0;
-      padding: 0;
       position: absolute;
       right: 12px;
+      top: 0;
+    }
 
-      &__option {
+    .react-autosuggest {
+      &__suggestion {
         border-bottom: 1px solid @grey-highlight;
+        cursor: pointer;
+        padding: 8px 12px;
+
+        &--focused {
+          background: @grey-highlight;
+        }
 
         &:last-of-type {
           border-bottom: none;
+        }
+      }
+
+      &__suggestions-container {
+        background: @light-grey;
+        left: 12px;
+        margin: 4px 0 0;
+        padding: 0;
+        position: absolute;
+        right: 12px;
+      }
+
+      &__suggestions-list {
+        list-style: none;
+      }
+
+      &__input {
+        border-bottom: 1px solid @grey;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        box-sizing: border-box;
+        color: @dark-grey;
+        font: 400 20px/32px 'Open Sans', sans-serif;
+        width: 100%;
+
+        &:focus {
+          border-bottom-color: @dark-grey;
+          outline: none;
         }
       }
     }

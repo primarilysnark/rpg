@@ -15,6 +15,5 @@ export const characterCreatorActions = {
 };
 
 export const raceActions = {
-  clearRacesType: 'RACE/CLEAR_RACES',
-  searchRacesTypes: createAsyncActionTypes('RACE/SEARCH_RACES'),
+  fetchRacesTypes: createAsyncActionTypes('RACE/SEARCH_RACES'),
 };

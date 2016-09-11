@@ -1,37 +1,33 @@
 import { raceActions } from '../actions/action-types';
 
 const {
-  clearRacesType,
-  searchRacesTypes,
+  fetchRacesTypes,
 } = raceActions;
 
 const DEFAULT_CAMPAIGN_STATE = {
   isSearching: false,
-  results: null,
+  results: {},
 };
 
 export function races(state = DEFAULT_CAMPAIGN_STATE, action) {
   const { type, result } = action;
 
   switch (type) {
-    case clearRacesType:
-      return {
-        ...state,
-        results: null,
-      };
-
-    case searchRacesTypes.processing:
+    case fetchRacesTypes.processing:
       return {
         ...state,
         isSearching: true,
-        results: null,
+        results: {},
       };
 
-    case searchRacesTypes.success:
+    case fetchRacesTypes.success:
       return {
         ...state,
         isSearching: false,
-        results: result.data,
+        results: result.data.reduce((results, race) => ({
+          ...results,
+          [race.id]: race,
+        }), {}),
       };
 
     default:

@@ -12,7 +12,7 @@ const DEFAULT_CHARACTER_CREATOR_STATE = {
     alignment: '',
     background: '',
     name: '',
-    race: '',
+    race: null,
   },
 };
 
