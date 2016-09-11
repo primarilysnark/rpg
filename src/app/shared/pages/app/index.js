@@ -7,6 +7,12 @@ import { TwentySidedDieIcon } from '../../components/icons/common-icons.g';
 
 import './styles.less';
 
+const ROUTE_NAMES = {
+  '/campaigns': 'Campaigns',
+  '/characters': 'Characters',
+  '/characters/create': 'Create a Character',
+};
+
 function mapStateToProps({ currentUser }) {
   return { currentUser };
 }
@@ -21,6 +27,9 @@ export class App extends Component {
       id: PropTypes.string.isRequired,
       name: PropTypes.string,
     }).isRequired,
+    routes: PropTypes.arrayOf(PropTypes.shape({
+      path: PropTypes.string,
+    })).isRequired,
   };
 
   state = {
@@ -57,8 +66,9 @@ export class App extends Component {
         <div className="app__content">
           <nav className="app__content__navigation">
             <ul className="app__content__navigation__breadcrumbs">
-              <li className="app__content__navigation__breadcrumbs__option">Characters</li>
-              <li className="app__content__navigation__breadcrumbs__option">Create a Character</li>
+              {this.props.routes.filter(route => route.path != null && route.path !== '/').map(route => (
+                <li className="app__content__navigation__breadcrumbs__option" key={route.path}>{ROUTE_NAMES[route.path]}</li>
+              ))}
             </ul>
             <div className="app__content__navigation__user">
               <div className="app__content__navigation__user__info user-info">
