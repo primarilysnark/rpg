@@ -10,7 +10,7 @@ export class InformationPanel extends Component {
     size: PropTypes.number,
   };
 
-  static defaultPropTypes = {
+  static defaultProps = {
     size: 1,
   };
 
