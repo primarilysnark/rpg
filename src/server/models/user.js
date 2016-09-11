@@ -11,6 +11,12 @@ export const User = mongoose.model('User', mongoose.Schema({
 }));
 
 export function prettifyUser(user, googleUser) {
+  if (googleUser == null) {
+    return {
+      id: user._id.toString(),
+    };
+  }
+
   return {
     id: user._id.toString(),
     avatarUrl: googleUser.photos != null ? googleUser.photos[0].url : null,

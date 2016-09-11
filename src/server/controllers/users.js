@@ -1,4 +1,5 @@
 import { people } from 'googleapis';
+import mongoose from 'mongoose';
 
 import { User, prettifyUser } from '../models';
 
@@ -28,8 +29,20 @@ export function getUsers(req, res, oauth2Client) {
 }
 
 export function getUser(req, res, oauth2Client) {
-  return User.findById(req.params.userId)
+  let userId;
+
+  try {
+    userId = new mongoose.mongo.ObjectId(req.params.userId);
+  } catch (exception) {
+    return res.status(404).send();
+  }
+
+  return User.findById(userId)
     .then(user => new Promise((resolve, reject) => {
+      if (user == null) {
+        reject();
+      }
+
       peopleClient.people.get({
         resourceName: `people/${user.google.id}`,
         auth: oauth2Client,
@@ -44,8 +57,14 @@ export function getUser(req, res, oauth2Client) {
         });
       });
     }))
-      .then(({ user, response }) => res.status(200).json({
-        data: prettifyUser(user, response),
-      }))
-      .catch(err => res.status(500).send(err));
+    .then(({ user, response }) => res.status(200).json({
+      data: prettifyUser(user, response),
+    }))
+    .catch(error => {
+      if (error) {
+        return res.status(500).send(error);
+      }
+
+      return res.status(404).send();
+    });
 }
