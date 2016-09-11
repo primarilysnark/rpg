@@ -6,7 +6,7 @@ import passport from 'passport';
 import session from 'express-session';
 
 import { addWebpackDevProxy } from './dev';
-import { createApiRequestHandler } from './api';
+import { createApiRequestHandler, createUserRequestHandler } from './api';
 import { createAppRequestHandler } from '../app/server/main';
 import { setupGoogleOAuth } from './auth';
 import config from './config';
@@ -34,6 +34,8 @@ if (DEBUG) {
 // Setup serving of public resources
 app.use('/dist', express.static('dist'));
 app.use('/public', express.static('public'));
+
+app.use(/\/api(?!\/users)/, createApiRequestHandler());
 
 // Setup app session
 // TODO (Josh): Setup use of secure cookies, even with just a self-signed cert
@@ -95,7 +97,7 @@ app.post('/signout', (request, response) => {
   });
 });
 
-app.use('/api', createApiRequestHandler());
+app.use('/api/users', createUserRequestHandler());
 
 // Setup usage of React router for routing on all other pages
 app.use(createAppRequestHandler());

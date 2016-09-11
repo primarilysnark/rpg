@@ -76,3 +76,17 @@ export function createApiRequestHandler() {
 
   return app;
 }
+
+export function createUserRequestHandler() {
+  const app = express();
+
+  app.use(bodyParser.json());
+
+  app.route('/')
+    .get(setupGoogleClient(getUsers));
+
+  app.route('/:userId')
+    .get(setupGoogleClient(getUser));
+
+  return app;
+}
