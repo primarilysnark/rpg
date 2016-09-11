@@ -66,7 +66,12 @@ export class CreateCharacterOverview extends Component {
 
   updateRace = (event) => {
     this.props.updateRace(event.target.value);
-    this.props.searchRaces(event.target.value);
+
+    if (event.target.value !== '') {
+      this.props.searchRaces(event.target.value);
+    } else {
+      this.props.clearRaces();
+    }
   }
 
   renderRace = (race) => (
