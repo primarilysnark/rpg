@@ -77,32 +77,32 @@ export class CreateCharacterOverview extends Component {
           <LabelledInput
             label="Name"
             onChange={this.updateName}
-            size={2}
+            size={4}
             value={this.props.characterCreator.overview.name}
           />
           <LabelledAutoCompleteInput
             label="Race"
             onChange={this.updateRace}
-            size={1}
+            size={2}
             suggestions={races}
             value={this.props.characterCreator.overview.race == null ? '' : this.props.races.results[this.props.characterCreator.overview.race].name}
           />
           <LabelledAutoCompleteInput
             label="Alignment"
             onChange={this.updateAlignment}
-            size={1}
+            size={2}
             suggestions={alignments}
             value={this.props.characterCreator.overview.alignment == null ? '' : this.props.alignments.results[this.props.characterCreator.overview.alignment].name}
           />
         </WizardPanel>
         <WizardPanel>
           {this.props.characterCreator.overview.race == null ? null : (
-            <InformationPanel heading={this.props.races.results[this.props.characterCreator.overview.race].name} label="Your race" size={2}>
+            <InformationPanel heading={this.props.races.results[this.props.characterCreator.overview.race].name} label="Your race" size={4}>
               <p>{this.props.races.results[this.props.characterCreator.overview.race].tagline}</p>
             </InformationPanel>
           )}
           {this.props.characterCreator.overview.alignment == null ? null : (
-            <InformationPanel heading={this.props.alignments.results[this.props.characterCreator.overview.alignment].name} label="Your alignment" size={1}>
+            <InformationPanel heading={this.props.alignments.results[this.props.characterCreator.overview.alignment].name} label="Your alignment" size={2}>
               <p>{this.props.alignments.results[this.props.characterCreator.overview.alignment].tagline}</p>
             </InformationPanel>
           )}

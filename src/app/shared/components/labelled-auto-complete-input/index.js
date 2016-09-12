@@ -16,7 +16,7 @@ export class LabelledAutoCompleteInput extends Component {
   };
 
   static defaultPropTypes = {
-    size: 1,
+    size: 2,
   };
 
   state = {
@@ -88,7 +88,7 @@ export class LabelledAutoCompleteInput extends Component {
 
   render() {
     return (
-      <div className={`labelled-auto-complete-input ${this.props.size !== 1 ? `labelled-auto-complete-input--${this.props.size}` : ''}`}>
+      <div className={`labelled-auto-complete-input labelled-auto-complete-input--${this.props.size}`}>
         <label className="labelled-auto-complete-input__label" data-label={this.props.label}>
           <TagsInput
             onChange={this.onChange}

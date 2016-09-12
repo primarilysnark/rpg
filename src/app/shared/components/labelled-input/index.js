@@ -16,7 +16,7 @@ export class LabelledInput extends Component {
 
   render() {
     return (
-      <div className={`labelled-input ${this.props.size !== 1 ? `labelled-input--${this.props.size}` : ''}`}>
+      <div className={`labelled-input labelled-input--${this.props.size}`}>
         <label className="labelled-input__label" data-label={this.props.label}>
           <input
             className="labelled-input__label__input"
