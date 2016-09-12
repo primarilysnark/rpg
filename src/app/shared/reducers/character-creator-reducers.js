@@ -9,7 +9,7 @@ const {
 
 const DEFAULT_CHARACTER_CREATOR_STATE = {
   overview: {
-    alignment: '',
+    alignment: null,
     background: '',
     name: '',
     race: null,

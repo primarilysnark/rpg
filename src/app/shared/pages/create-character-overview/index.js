@@ -6,6 +6,7 @@ import { LabelledInput } from '../../components/labelled-input';
 import { InformationPanel } from '../../components/information-panel';
 import { WizardPanel } from '../../components/wizard-panel';
 import {
+  fetchAlignments,
   fetchRaces,
   updateAlignment,
   updateBackground,
@@ -15,12 +16,13 @@ import {
 
 import './styles.less';
 
-function mapStateToProps({ characterCreator, races }) {
-  return { characterCreator, races };
+function mapStateToProps({ alignments, characterCreator, races }) {
+  return { alignments, characterCreator, races };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
+    fetchAlignments: () => dispatch(fetchAlignments()),
     fetchRaces: () => dispatch(fetchRaces()),
     updateAlignment: (alignment) => dispatch(updateAlignment(alignment)),
     updateBackground: (background) => dispatch(updateBackground(background)),
@@ -32,9 +34,14 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export class CreateCharacterOverview extends Component {
   static propTypes = {
+    alignments: PropTypes.shape({
+      results: PropTypes.objectOf(PropTypes.shape({
+        name: PropTypes.string.isRequired,
+      })),
+    }).isRequired,
     characterCreator: PropTypes.shape({
       overview: PropTypes.shape({
-        alignment: PropTypes.string.isRequired,
+        alignment: PropTypes.string,
         background: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
         race: PropTypes.string,
@@ -45,6 +52,7 @@ export class CreateCharacterOverview extends Component {
         name: PropTypes.string.isRequired,
       })),
     }).isRequired,
+    fetchAlignments: PropTypes.func.isRequired,
     fetchRaces: PropTypes.func.isRequired,
     updateAlignment: PropTypes.func.isRequired,
     updateBackground: PropTypes.func.isRequired,
@@ -53,24 +61,20 @@ export class CreateCharacterOverview extends Component {
   };
 
   componentDidMount() {
+    this.props.fetchAlignments();
     this.props.fetchRaces();
   }
 
-  setRace = (race) => this.props.updateRace(race == null ? null : race.id);
-
-  updateAlignment = (event) => this.props.updateAlignment(event.target.value);
+  updateAlignment = (alignment) => this.props.updateAlignment(alignment == null ? null : alignment.id);
 
   updateBackground = (event) => this.props.updateBackground(event.target.value);
 
   updateName = (event) => this.props.updateName(event.target.value);
 
-  renderRace = (race) => (
-    <button className="character-creator-suggestion character-creator-suggestion--race" onClick={() => this.setRace(race.id)}>
-      <span className="character-creator-suggestion__match">{this.props.characterCreator.overview.race}</span>{race.name.slice(this.props.characterCreator.overview.race.length)}
-    </button>
-  );
+  updateRace = (race) => this.props.updateRace(race == null ? null : race.id);
 
   render() {
+    const alignments = Object.keys(this.props.alignments.results).map(raceKey => this.props.alignments.results[raceKey]);
     const races = Object.keys(this.props.races.results).map(raceKey => this.props.races.results[raceKey]);
 
     return (
@@ -84,10 +88,9 @@ export class CreateCharacterOverview extends Component {
           />
           <LabelledAutoCompleteInput
             label="Race"
-            onChange={this.setRace}
+            onChange={this.updateRace}
             size={1}
             suggestions={races}
-            suggestionTemplate={this.renderRace}
             value={this.props.characterCreator.overview.race == null ? '' : this.props.races.results[this.props.characterCreator.overview.race].name}
           />
           <LabelledInput
@@ -96,11 +99,12 @@ export class CreateCharacterOverview extends Component {
             size={1}
             value={this.props.characterCreator.overview.background}
           />
-          <LabelledInput
+          <LabelledAutoCompleteInput
             label="Alignment"
             onChange={this.updateAlignment}
             size={1}
-            value={this.props.characterCreator.overview.alignment}
+            suggestions={alignments}
+            value={this.props.characterCreator.overview.alignment == null ? '' : this.props.alignments.results[this.props.characterCreator.overview.alignment].name}
           />
         </WizardPanel>
         <WizardPanel>
@@ -112,9 +116,11 @@ export class CreateCharacterOverview extends Component {
           <InformationPanel heading="Entertainer" label="Your background">
             <p>You thrive in front of an audience. You know how to entrance, entertain, and even inspire them.</p>
           </InformationPanel>
-          <InformationPanel heading="Lawful Neutral" label="Your alignment">
-            <p>You act as the law, tradition, or personal code direct you. Order and organization are paramount.</p>
-          </InformationPanel>
+          {this.props.characterCreator.overview.alignment == null ? null : (
+            <InformationPanel heading={this.props.alignments.results[this.props.characterCreator.overview.alignment].name} label="Your alignment" size={1}>
+              <p>{this.props.alignments.results[this.props.characterCreator.overview.alignment].tagline}</p>
+            </InformationPanel>
+          )}
         </WizardPanel>
       </div>
     );

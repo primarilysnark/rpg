@@ -12,7 +12,6 @@ export class LabelledAutoCompleteInput extends Component {
     suggestions: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,
     })).isRequired,
-    suggestionTemplate: PropTypes.func.isRequired,
     value: PropTypes.string.isRequired,
   };
 
