@@ -16,7 +16,6 @@ export const campaignActions = {
 // Character creator types
 export const characterCreatorActions = {
   updateAlignmentType: 'CHARACTER_CREATOR/UPDATE_ALIGNMENT',
-  updateBackgroundType: 'CHARACTER_CREATOR/UPDATE_BACKGROUND',
   updateNameType: 'CHARACTER_CREATOR/UPDATE_NAME',
   updateRaceType: 'CHARACTER_CREATOR/UPDATE_RACE',
 };

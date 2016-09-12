@@ -9,7 +9,6 @@ import {
   fetchAlignments,
   fetchRaces,
   updateAlignment,
-  updateBackground,
   updateName,
   updateRace,
 } from '../../actions';
@@ -25,7 +24,6 @@ function mapDispatchToProps(dispatch) {
     fetchAlignments: () => dispatch(fetchAlignments()),
     fetchRaces: () => dispatch(fetchRaces()),
     updateAlignment: (alignment) => dispatch(updateAlignment(alignment)),
-    updateBackground: (background) => dispatch(updateBackground(background)),
     updateName: (name) => dispatch(updateName(name)),
     updateRace: (race) => dispatch(updateRace(race)),
   };
@@ -42,7 +40,6 @@ export class CreateCharacterOverview extends Component {
     characterCreator: PropTypes.shape({
       overview: PropTypes.shape({
         alignment: PropTypes.string,
-        background: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
         race: PropTypes.string,
       }).isRequired,
@@ -55,7 +52,6 @@ export class CreateCharacterOverview extends Component {
     fetchAlignments: PropTypes.func.isRequired,
     fetchRaces: PropTypes.func.isRequired,
     updateAlignment: PropTypes.func.isRequired,
-    updateBackground: PropTypes.func.isRequired,
     updateName: PropTypes.func.isRequired,
     updateRace: PropTypes.func.isRequired,
   };
@@ -66,8 +62,6 @@ export class CreateCharacterOverview extends Component {
   }
 
   updateAlignment = (alignment) => this.props.updateAlignment(alignment == null ? null : alignment.id);
-
-  updateBackground = (event) => this.props.updateBackground(event.target.value);
 
   updateName = (event) => this.props.updateName(event.target.value);
 
@@ -93,12 +87,6 @@ export class CreateCharacterOverview extends Component {
             suggestions={races}
             value={this.props.characterCreator.overview.race == null ? '' : this.props.races.results[this.props.characterCreator.overview.race].name}
           />
-          <LabelledInput
-            label="Background"
-            onChange={this.updateBackground}
-            size={1}
-            value={this.props.characterCreator.overview.background}
-          />
           <LabelledAutoCompleteInput
             label="Alignment"
             onChange={this.updateAlignment}
@@ -113,9 +101,6 @@ export class CreateCharacterOverview extends Component {
               <p>{this.props.races.results[this.props.characterCreator.overview.race].tagline}</p>
             </InformationPanel>
           )}
-          <InformationPanel heading="Entertainer" label="Your background">
-            <p>You thrive in front of an audience. You know how to entrance, entertain, and even inspire them.</p>
-          </InformationPanel>
           {this.props.characterCreator.overview.alignment == null ? null : (
             <InformationPanel heading={this.props.alignments.results[this.props.characterCreator.overview.alignment].name} label="Your alignment" size={1}>
               <p>{this.props.alignments.results[this.props.characterCreator.overview.alignment].tagline}</p>

@@ -2,7 +2,6 @@ import { characterCreatorActions } from '../actions/action-types';
 
 const {
   updateAlignmentType,
-  updateBackgroundType,
   updateNameType,
   updateRaceType,
 } = characterCreatorActions;
@@ -10,7 +9,6 @@ const {
 const DEFAULT_CHARACTER_CREATOR_STATE = {
   overview: {
     alignment: null,
-    background: '',
     name: '',
     race: null,
   },
@@ -26,15 +24,6 @@ export function characterCreator(state = DEFAULT_CHARACTER_CREATOR_STATE, action
         overview: {
           ...state.overview,
           alignment: action.alignment,
-        },
-      };
-
-    case updateBackgroundType:
-      return {
-        ...state,
-        overview: {
-          ...state.overview,
-          background: action.background,
         },
       };
 
