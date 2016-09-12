@@ -5,14 +5,18 @@ import express from 'express';
 import { User } from './models';
 import config from './config';
 import {
+  createAlignment,
   createCampaign,
   createRace,
+  getAlignment,
+  getAlignments,
   getCampaign,
   getCampaigns,
   getRace,
   getRaces,
   getUser,
   getUsers,
+  deleteAlignment,
   deleteCampaign,
   deleteRace,
 } from './controllers';
@@ -51,6 +55,14 @@ export function createApiRequestHandler() {
   const app = express();
 
   app.use(bodyParser.json());
+
+  app.route('/alignments')
+    .get(getAlignments)
+    .post(createAlignment);
+
+  app.route('/alignments/:alignmentId')
+    .get(getAlignment)
+    .delete(deleteAlignment);
 
   app.route('/campaigns')
     .get(getCampaigns)
