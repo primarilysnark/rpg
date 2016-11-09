@@ -4,7 +4,6 @@ import mysql from 'mysql';
 import mysqlSession from 'express-mysql-session';
 import passport from 'passport';
 import session from 'express-session';
-import mongoose from 'mongoose';
 
 import { addWebpackDevProxy } from './dev';
 import { createApiRequestHandler, createUserRequestHandler } from './api';
@@ -15,11 +14,6 @@ import config from './config';
 const MySQLStore = mysqlSession(session);
 const app = express();
 const port = process.env.PORT || 3000;
-
-// Setup MongoDB connections
-// This includes Mongoose for models
-mongoose.Promise = global.Promise;
-mongoose.connect(config.mongodb.connectionUrl);
 
 // Setup MySQL connections
 // This includes initial connection and express-mysql-session for session storage
