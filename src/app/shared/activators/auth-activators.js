@@ -5,7 +5,7 @@ export function requireAnonymousUser(store, routerState, navigate) {
     resolve(currentUser);
   })
     .then(currentUser => {
-      if (currentUser.id !== '-1') {
+      if (currentUser.id !== -1) {
         navigate('/campaigns');
       }
     });
@@ -18,7 +18,7 @@ export function requireAuthenticatedUser(store, routerState, navigate) {
     resolve(currentUser);
   })
     .then(currentUser => {
-      if (currentUser.id === '-1') {
+      if (currentUser.id === -1) {
         navigate('/');
       }
     });

@@ -1,12 +1,17 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { auth, people } from 'googleapis';
+import { auth, plus } from 'googleapis';
 
-import { User, prettifyUser } from './models';
 import config from './config';
+import {
+  fetchUserByGoogleId,
+  fetchUserById,
+  saveUser,
+  updateUser,
+} from './models';
 
-const peopleClient = people('v1');
+const plusClient = plus('v1');
 
-export function setupGoogleOAuth(passport) {
+export function setupGoogleOAuth(passport, connection) {
   passport.use(new GoogleStrategy({
     callbackURL: config.google.callbackURL,
     clientID: config.google.clientID,
@@ -14,38 +19,39 @@ export function setupGoogleOAuth(passport) {
   }, (token, refreshToken, params, profile, done) => {
     const currentDate = Date.now();
 
-    User.findOne({ 'google.id': profile.id })
+    fetchUserByGoogleId(connection, profile.id)
       .then(user => {
+        const expireTime = currentDate + params.expires_in;
+
         if (user == null) {
-          const newUser = new User({
+          return saveUser(connection, {
+            avatarUrl: profile.photos[0].value,
+            email: profile.emails[0].value,
             google: {
               id: profile.id,
-              token,
+              expireTime,
               refreshToken,
-              expireTime: (currentDate + params.expires_in),
+              token,
             },
+            name: profile.displayName,
           });
-
-          return newUser.save()
-            .then(() => newUser);
         }
 
-        return user.update({
+        return updateUser(connection, {
+          ...user,
           google: {
-            id: user.google.id,
+            ...user.google,
+            expireTime,
             token,
-            refreshToken,
-            expireTime: currentDate + params.expires_in,
           },
-        })
-          .then(() => user);
+        });
       })
       .then(user => done(null, user))
       .catch(error => done(error));
   }));
 
   passport.serializeUser((user, callback) => {
-    callback(null, user._id);
+    callback(null, user.id);
   });
 
   passport.deserializeUser((id, callback) => {
@@ -55,7 +61,7 @@ export function setupGoogleOAuth(passport) {
       config.google.callbackURL
     );
 
-    User.findById(id)
+    fetchUserById(connection, id)
       .then(user => {
         oauth2Client.setCredentials({
           access_token: user.google.token,
@@ -64,7 +70,7 @@ export function setupGoogleOAuth(passport) {
 
         const currentDate = Date.now();
 
-        if (user.google.expireTime > currentDate) {
+        if (user.google.expireTime === currentDate) {
           return user;
         }
 
@@ -74,34 +80,30 @@ export function setupGoogleOAuth(passport) {
               reject(error);
             }
 
-            resolve(user.update({
-              google: {
-                id: user.google.id,
-                token: response.access_token,
-                refreshToken: user.google.refreshToken,
-                expireTime: response.expiry_date,
-              },
-            })
-              .then(() => user));
+            plusClient.people.get({
+              auth: oauth2Client,
+              userId: user.google.id,
+            }, (plusError, profile) => {
+              if (plusError) {
+                reject(error);
+              }
+
+              resolve(updateUser(connection, {
+                ...user,
+                avatarUrl: profile.image.url,
+                google: {
+                  ...user.google,
+                  expireTime: response.expiry_date,
+                  token: response.access_token,
+                },
+                name: profile.displayName,
+              })
+                .then(() => user));
+            });
           });
         });
       })
-      .then(user => new Promise((resolve, reject) => {
-        peopleClient.people.get({
-          resourceName: 'people/me',
-          auth: oauth2Client,
-        }, (error, response) => {
-          if (error) {
-            reject(error);
-          }
-
-          resolve({
-            user,
-            response,
-          });
-        });
-      }))
-      .then(({ user, response }) => callback(null, prettifyUser(user, response)))
+      .then(user => callback(null, user))
       .catch(error => callback(error));
   });
 }
