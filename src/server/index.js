@@ -40,7 +40,7 @@ app.use('/dist', express.static('dist'));
 app.use('/public', express.static('public'));
 
 app.use((req, res, next) => {
-  req.connection = connection;
+  req.connection = mysql.createConnection(config.mysql);
 
   next();
 });
