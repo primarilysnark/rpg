@@ -1,5 +1,10 @@
-import { Race, prettifyRace } from '../models';
 import { sendBadRequest, sendNotFound } from './util';
+import {
+  deleteRaceById,
+  fetchRaceById,
+  fetchRaces,
+  saveRace,
+} from '../models';
 
 export function createRace(req, res) {
   if (req.body.alignment == null) {
@@ -30,7 +35,7 @@ export function createRace(req, res) {
     return sendBadRequest(res, 'Races must have a tagline.');
   }
 
-  return new Race({
+  return saveRace(req.connection, {
     alignment: req.body.alignment,
     description: req.body.description,
     name: req.body.name,
@@ -39,58 +44,64 @@ export function createRace(req, res) {
     society: req.body.society,
     tagline: req.body.tagline,
   })
-    .save()
     .then(race => res.status(201).json({
-      data: prettifyRace(race),
+      data: race,
     }))
     .catch(err => sendBadRequest(res, err));
 }
 
 export function getRace(req, res) {
   if (req.params.raceId == null) {
-    return sendBadRequest(res);
+    return res.status(400).send();
   }
 
-  return Race.findById(req.params.raceId)
+  const raceId = parseInt(req.params.raceId, 10);
+  if (isNaN(raceId)) {
+    if (req.params.raceId == null) {
+      return res.status(404).send();
+    }
+  }
+
+  return fetchRaceById(req.connection, raceId)
     .then(race => {
       if (race == null) {
         return sendNotFound(res);
       }
 
       return res.status(200).json({
-        data: prettifyRace(race),
+        data: race,
       });
     })
     .catch(() => sendNotFound(res));
 }
 
 export function getRaces(req, res) {
-  if (req.query.search != null && typeof req.query.search !== 'string') {
-    return sendBadRequest(res, 'Search must be a string');
-  }
-
-  return Race.find({
-    name: new RegExp(`^${req.query.search || ''}.*`, 'i'),
-  })
+  return fetchRaces(req.connection)
     .then(races => res.status(200).json({
-      data: races.map(prettifyRace),
+      data: races,
     }))
     .catch(err => res.status(500).send(err));
 }
 
 export function deleteRace(req, res) {
   if (req.params.raceId == null) {
-    return sendBadRequest(res);
+    return res.status(400).send();
   }
 
-  return Race.findById(req.params.raceId)
-    .then(campaign => {
-      if (campaign == null) {
+  const raceId = parseInt(req.params.raceId, 10);
+  if (isNaN(raceId)) {
+    if (req.params.raceId == null) {
+      return res.status(404).send();
+    }
+  }
+
+  return fetchRaceById(req.connection, raceId)
+    .then(race => {
+      if (race == null) {
         return sendNotFound(res);
       }
 
-      return Race.where({ _id: req.params.raceId })
-        .remove();
+      return deleteRaceById(req.connection, race.id);
     })
     .then(() => res.status(204).send())
     .catch(() => sendNotFound(res));
