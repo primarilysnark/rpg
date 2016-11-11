@@ -1,7 +1,5 @@
 /* globals after, afterEach, before, beforeEach, describe, it */
 import expect from 'expect';
-import mockgoose from 'mockgoose';
-import mongoose from 'mongoose';
 import request from 'supertest';
 
 import { createApiRequestHandler } from '../src/server/api';
@@ -9,17 +7,10 @@ import testCampaign from './data/campaign';
 import badTestCampaign from './data/bad-campaign';
 import config from '../src/server/config';
 
-const app = createApiRequestHandler();
+const app = createApiRequestHandler(config);
 
 describe('campaigns', () => {
   let campaignId = null;
-
-  before(done => {
-    mockgoose(mongoose).then(() => {
-      mongoose.Promise = global.Promise;
-      mongoose.connect(config.mongodb.connectionUrl, (err) => done(err));
-    });
-  });
 
   beforeEach(() => request(app)
     .post('/campaigns')
@@ -29,13 +20,9 @@ describe('campaigns', () => {
     })
   );
 
-  after(done => {
-    mongoose.disconnect(() => done());
-  });
-
-  afterEach(() => {
-    mockgoose.reset();
-  });
+  afterEach(() => request(app)
+    .del(`/campaigns/${campaignId}`)
+  );
 
   it('fetch existing campaign', () => request(app)
     .get(`/campaigns/${campaignId}`)
@@ -57,14 +44,23 @@ describe('campaigns', () => {
     .expect(404)
   );
 
-  it('create new campaign', () => request(app)
-    .post('/campaigns')
-    .send(testCampaign)
-    .expect(201)
-    .expect(res => {
-      expect(res.body.data.name).toBe(testCampaign.name);
-    })
-  );
+  it('create new campaign', () => {
+    let newCampaignId;
+
+    return request(app)
+      .post('/campaigns')
+      .send(testCampaign)
+      .expect(201)
+      .expect(res => {
+        newCampaignId = res.body.data.id;
+
+        expect(res.body.data.name).toBe(testCampaign.name);
+      })
+      .then(() => request(app)
+        .del(`/campaigns/${newCampaignId}`)
+        .expect(204)
+      );
+  });
 
   it('fail to create new campaign with bad data', () => request(app)
     .post('/campaigns')
