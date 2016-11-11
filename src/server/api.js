@@ -1,9 +1,6 @@
-import { auth } from 'googleapis';
 import bodyParser from 'body-parser';
 import express from 'express';
 
-import { User } from './models';
-import config from './config';
 import {
   createAlignment,
   createCampaign,
@@ -31,26 +28,6 @@ function requiresAuth(callback) {
   };
 }
 
-function setupGoogleClient(callback) {
-  return requiresAuth((req, res) => {
-    const oauth2Client = new auth.OAuth2(
-      config.google.clientID,
-      config.google.clientSecret,
-      config.google.callbackURL
-    );
-
-    User.findById(req.store.currentUser.id)
-      .then(user => {
-        oauth2Client.setCredentials({
-          access_token: user.google.token,
-          refresh_token: user.google.refreshToken,
-        });
-
-        return callback(req, res, oauth2Client);
-      });
-  });
-}
-
 export function createApiRequestHandler() {
   const app = express();
 
@@ -72,12 +49,6 @@ export function createApiRequestHandler() {
     .get(getCampaign)
     .delete(deleteCampaign);
 
-  app.route('/users')
-    .get(setupGoogleClient(getUsers));
-
-  app.route('/users/:userId')
-    .get(setupGoogleClient(getUser));
-
   app.route('/races')
     .get(getRaces)
     .post(createRace);
@@ -95,10 +66,10 @@ export function createUserRequestHandler() {
   app.use(bodyParser.json());
 
   app.route('/')
-    .get(setupGoogleClient(getUsers));
+    .get(requiresAuth(getUsers));
 
   app.route('/:userId')
-    .get(setupGoogleClient(getUser));
+    .get(requiresAuth(getUser));
 
   return app;
 }

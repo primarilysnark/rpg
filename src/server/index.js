@@ -1,7 +1,7 @@
 /* eslint no-param-reassign: 0 */
-import connectMongo from 'connect-mongo';
 import express from 'express';
-import mongoose from 'mongoose';
+import mysql from 'mysql';
+import mysqlSession from 'express-mysql-session';
 import passport from 'passport';
 import session from 'express-session';
 
@@ -11,15 +11,13 @@ import { createAppRequestHandler } from '../app/server/main';
 import { setupGoogleOAuth } from './auth';
 import config from './config';
 
+const MySQLStore = mysqlSession(session);
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Setup MongoDB connections
-// This includes Mongoose for models and connect-mongo for sesion storage
-const MongoStore = connectMongo(session);
-
-mongoose.Promise = global.Promise;
-mongoose.connect(config.mongodb.connectionUrl);
+// Setup MySQL connections
+// This includes initial connection and express-mysql-session for session storage
+const connection = mysql.createConnection(config.mysql);
 
 // If running a development environment, ignore TLS errors from self-signed certs
 // Additionally setup webpack dev proxy as necessary
@@ -35,6 +33,12 @@ if (DEBUG) {
 app.use('/dist', express.static('dist'));
 app.use('/public', express.static('public'));
 
+app.use((req, res, next) => {
+  req.connection = mysql.createConnection(config.mysql);
+
+  next();
+});
+
 app.use(/\/api(?!\/users)/, createApiRequestHandler());
 
 // Setup app session
@@ -47,14 +51,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   secret: config.session.secret,
-  store: new MongoStore({
-    mongooseConnection: mongoose.connection,
-  }),
+  store: new MySQLStore({}, connection),
 }));
 
 // Configure Passport to use the Google OAuth 2.0 strategy
 // Additionally setup Express to use Passport for authentication
-setupGoogleOAuth(passport);
+setupGoogleOAuth(passport, connection);
 
 app.use(passport.initialize());
 app.use(passport.session());

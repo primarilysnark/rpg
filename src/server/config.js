@@ -12,8 +12,11 @@ export default findConfig({
       clientID: validator.isString(),
       clientSecret: validator.isString(),
     },
-    mongodb: {
-      connectionUrl: validator.isString(),
+    mysql: {
+      database: validator.isString(),
+      host: validator.isString(),
+      password: validator.isString(),
+      user: validator.isString(),
     },
     session: {
       secret: validator.isString(),

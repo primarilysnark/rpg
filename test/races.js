@@ -1,7 +1,5 @@
 /* globals after, afterEach, before, beforeEach, describe, it */
 import expect from 'expect';
-import mockgoose from 'mockgoose';
-import mongoose from 'mongoose';
 import request from 'supertest';
 
 import { createApiRequestHandler } from '../src/server/api';
@@ -9,17 +7,10 @@ import testRace from './data/race';
 import badTestRace from './data/bad-race';
 import config from '../src/server/config';
 
-const app = createApiRequestHandler();
+const app = createApiRequestHandler(config);
 
 describe('races', () => {
   let raceId = null;
-
-  before(done => {
-    mockgoose(mongoose).then(() => {
-      mongoose.Promise = global.Promise;
-      mongoose.connect(config.mongodb.connectionUrl, (err) => done(err));
-    });
-  });
 
   beforeEach(() => request(app)
     .post('/races')
@@ -29,13 +20,9 @@ describe('races', () => {
     })
   );
 
-  after(done => {
-    mongoose.disconnect(() => done());
-  });
-
-  afterEach(() => {
-    mockgoose.reset();
-  });
+  afterEach(() => request(app)
+    .del(`/races/${raceId}`)
+  );
 
   it('fetch existing race', () => request(app)
     .get(`/races/${raceId}`)
@@ -57,15 +44,24 @@ describe('races', () => {
     .expect(404)
   );
 
-  it('create new race', () => request(app)
-    .post('/races')
-    .send(testRace)
-    .expect(201)
-    .expect(res => {
-      expect(res.body.data.name).toBe(testRace.name);
-      expect(res.body.data.description).toBeA('object');
-    })
-  );
+  it('create new race', () => {
+    let newRaceId;
+
+    return request(app)
+      .post('/races')
+      .send(testRace)
+      .expect(201)
+      .expect(res => {
+        newRaceId = res.body.data.id;
+
+        expect(res.body.data.name).toBe(testRace.name);
+        expect(res.body.data.description).toBeA('object');
+      })
+      .then(() => request(app)
+        .del(`/races/${newRaceId}`)
+        .expect(204)
+      );
+  });
 
   it('fail to create new race with bad data', () => request(app)
     .post('/races')

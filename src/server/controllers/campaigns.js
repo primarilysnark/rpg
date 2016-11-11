@@ -1,4 +1,9 @@
-import { Campaign, prettifyCampaign } from '../models';
+import {
+  deleteCampaignById,
+  fetchCampaignById,
+  fetchCampaigns,
+  saveCampaign,
+} from '../models';
 
 export function createCampaign(req, res) {
   if (req.body.name == null) {
@@ -9,12 +14,11 @@ export function createCampaign(req, res) {
     return res.status(400).send('Campaign names must be strings');
   }
 
-  return new Campaign({
+  return saveCampaign(req.connection, {
     name: req.body.name,
   })
-    .save()
     .then(campaign => res.status(201).json({
-      data: prettifyCampaign(campaign),
+      data: campaign,
     }))
     .catch(err => res.status(400).send(err));
 }
@@ -24,36 +28,53 @@ export function getCampaign(req, res) {
     return res.status(400).send();
   }
 
-  return Campaign.findById(req.params.campaignId)
+  const campaignId = parseInt(req.params.campaignId, 10);
+  if (isNaN(campaignId)) {
+    if (req.params.campaignId == null) {
+      return res.status(404).send();
+    }
+  }
+
+  return fetchCampaignById(req.connection, campaignId)
     .then(campaign => {
       if (campaign == null) {
         return res.status(404).send();
       }
 
       return res.status(200).json({
-        data: prettifyCampaign(campaign),
+        data: campaign,
       });
     })
     .catch(err => res.status(404).send(err));
 }
 
 export function getCampaigns(req, res) {
-  return Campaign.find()
+  return fetchCampaigns(req.connection)
     .then(campaigns => res.status(200).json({
-      data: campaigns.map(prettifyCampaign),
+      data: campaigns,
     }))
     .catch(err => res.status(500).send(err));
 }
 
 export function deleteCampaign(req, res) {
-  return Campaign.findById(req.params.campaignId)
+  if (req.params.campaignId == null) {
+    return res.status(400).send();
+  }
+
+  const campaignId = parseInt(req.params.campaignId, 10);
+  if (isNaN(campaignId)) {
+    if (req.params.campaignId == null) {
+      return res.status(404).send();
+    }
+  }
+
+  return fetchCampaignById(req.connection, campaignId)
     .then(campaign => {
       if (campaign == null) {
         return res.status(404).send();
       }
 
-      return Campaign.where({ _id: req.params.campaignId })
-        .remove();
+      return deleteCampaignById(req.connection, campaign.id);
     })
     .then(() => res.status(204).send())
     .catch(err => res.status(404).send(err));

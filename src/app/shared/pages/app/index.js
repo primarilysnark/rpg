@@ -24,7 +24,7 @@ export class App extends Component {
     currentUser: PropTypes.shape({
       avatarUrl: PropTypes.string,
       email: PropTypes.string,
-      id: PropTypes.string.isRequired,
+      id: PropTypes.number.isRequired,
       name: PropTypes.string,
     }).isRequired,
     routes: PropTypes.arrayOf(PropTypes.shape({
@@ -39,7 +39,7 @@ export class App extends Component {
   toggleUserMenu = () => this.setState({ isUserMenuOpen: !this.state.isUserMenuOpen });
 
   render() {
-    if (this.props.currentUser.id === '-1') {
+    if (this.props.currentUser.id === -1) {
       return (
         <Home />
       );
