@@ -1,41 +1,36 @@
+import Joi from 'joi';
+
 import {
+  CampaignSchema,
   deleteCampaignById,
   fetchCampaignById,
   fetchCampaigns,
   saveCampaign,
 } from '../models';
+import { formatValidationErrors, validateObject } from './util';
+
+const campaignIdSchema = Joi.object().keys({
+  campaignId: Joi.number().required(),
+});
 
 export function createCampaign(req, res) {
-  if (req.body.name == null) {
-    return res.status(400).send('Campaigns must have a name');
-  }
-
-  if (typeof req.body.name !== 'string') {
-    return res.status(400).send('Campaign names must be strings');
-  }
-
-  return saveCampaign(req.connection, {
-    name: req.body.name,
-  })
+  return validateObject(req.body, CampaignSchema)
+    .catch(errors => res.status(400).json({
+      errors: formatValidationErrors(errors),
+    }))
+    .then(value => saveCampaign(req.connection, value))
     .then(campaign => res.status(201).json({
       data: campaign,
     }))
-    .catch(err => res.status(400).send(err));
+    .catch(error => res.status(500).send(error));
 }
 
 export function getCampaign(req, res) {
-  if (req.params.campaignId == null) {
-    return res.status(400).send();
-  }
-
-  const campaignId = parseInt(req.params.campaignId, 10);
-  if (isNaN(campaignId)) {
-    if (req.params.campaignId == null) {
-      return res.status(404).send();
-    }
-  }
-
-  return fetchCampaignById(req.connection, campaignId)
+  return validateObject(req.params, campaignIdSchema)
+    .catch(errors => res.status(400).json({
+      errors: formatValidationErrors(errors, true),
+    }))
+    .then(params => fetchCampaignById(req.connection, params.campaignId))
     .then(campaign => {
       if (campaign == null) {
         return res.status(404).send();
@@ -57,18 +52,11 @@ export function getCampaigns(req, res) {
 }
 
 export function deleteCampaign(req, res) {
-  if (req.params.campaignId == null) {
-    return res.status(400).send();
-  }
-
-  const campaignId = parseInt(req.params.campaignId, 10);
-  if (isNaN(campaignId)) {
-    if (req.params.campaignId == null) {
-      return res.status(404).send();
-    }
-  }
-
-  return fetchCampaignById(req.connection, campaignId)
+  return validateObject(req.params, campaignIdSchema)
+    .catch(errors => res.status(400).json({
+      errors: formatValidationErrors(errors, true),
+    }))
+    .then(params => fetchCampaignById(req.connection, params.campaignId))
     .then(campaign => {
       if (campaign == null) {
         return res.status(404).send();

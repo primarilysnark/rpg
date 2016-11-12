@@ -36,11 +36,11 @@ describe('campaigns', () => {
 
   it('fail to fetch missing campaign with invalid format id', () => request(app)
     .get('/campaigns/not-an-id')
-    .expect(404)
+    .expect(400)
   );
 
   it('fail to fetch missing campaign with valid format id', () => request(app)
-    .get('/campaigns/57cb3f3e37237d091550e5ff')
+    .get('/campaigns/2')
     .expect(404)
   );
 
@@ -82,8 +82,13 @@ describe('campaigns', () => {
     .expect(204)
   );
 
-  it('fail to delete missing campaign', () => request(app)
+  it('fail to delete invalid campaign id', () => request(app)
     .del('/campaigns/not-an-id')
+    .expect(400)
+  );
+
+  it('fail to delete missing campaign id', () => request(app)
+    .del('/campaigns/-1')
     .expect(404)
   );
 });

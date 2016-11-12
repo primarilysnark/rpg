@@ -1,4 +1,7 @@
 {
-  "name": "Test Campaign",
-  "creatorId": 1
+  "attributes": {
+    "name": "Test Campaign",
+    "creatorId": 1
+  },
+  "type": "campaigns"
 }
