@@ -5,6 +5,8 @@ import {
   deleteCampaignById,
   fetchCampaignById,
   fetchCampaigns,
+  fetchUsersById,
+  sanitizeUser,
   saveCampaign,
 } from '../models';
 import { formatValidationErrors, validateObject } from './util';
@@ -36,18 +38,27 @@ export function getCampaign(req, res) {
         return res.status(404).send();
       }
 
-      return res.status(200).json({
-        data: campaign,
-      });
+      return campaign;
     })
+    .then(campaign => fetchUsersById(req.connection, campaign.relationships.creator.data.id)
+      .then(users => ({
+        data: campaign,
+        included: users.map(sanitizeUser),
+      }))
+    )
+    .then(response => res.status(200).json(response))
     .catch(err => res.status(404).send(err));
 }
 
 export function getCampaigns(req, res) {
   return fetchCampaigns(req.connection)
-    .then(campaigns => res.status(200).json({
-      data: campaigns,
-    }))
+    .then(campaigns => fetchUsersById(req.connection, campaigns.map(campaign => campaign.relationships.creator.data.id))
+      .then(users => ({
+        data: campaigns,
+        included: users.map(sanitizeUser),
+      }))
+    )
+    .then(response => res.status(200).json(response))
     .catch(err => res.status(500).send(err));
 }
 

@@ -26,11 +26,9 @@ describe('campaigns', () => {
 
   it('fetch existing campaign', () => request(app)
     .get(`/campaigns/${campaignId}`)
-    .expect(200, {
-      data: {
-        ...testCampaign,
-        id: campaignId,
-      },
+    .expect(200)
+    .expect(res => {
+      expect(res.body.data.attributes.name).toBe(testCampaign.attributes.name);
     })
   );
 

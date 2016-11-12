@@ -1,7 +1,14 @@
 {
   "attributes": {
-    "name": "Test Campaign",
-    "creatorId": 1
+    "name": "Test Campaign"
+  },
+  "relationships": {
+    "creator": {
+      "data": {
+        "id": 1,
+        "type": "people"
+      }
+    }
   },
   "type": "campaigns"
 }

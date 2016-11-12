@@ -3,8 +3,18 @@ import Joi from 'joi';
 export const CampaignSchema = Joi.object().keys({
   id: Joi.number(),
   attributes: Joi.object().keys({
-    creatorId: Joi.number().required(),
     name: Joi.string().min(1).max(200).required(),
+  }).required(),
+  links: Joi.object().keys({
+    self: Joi.string().regex(/\/api\/campaigns\/\d+/).required(),
+  }),
+  relationships: Joi.object().keys({
+    creator: Joi.object().keys({
+      data: Joi.object().keys({
+        id: Joi.number().required(),
+        type: Joi.string().valid('people').required(),
+      }).required(),
+    }).required(),
   }).required(),
   type: Joi.string().valid('campaigns').required(),
 });
@@ -13,8 +23,18 @@ function mapDatabaseToPrettyCampaign(campaign) {
   return {
     id: campaign.id,
     attributes: {
-      creatorId: campaign.creator_user_id,
       name: campaign.name,
+    },
+    links: {
+      self: `/api/campaigns/${campaign.id}`,
+    },
+    relationships: {
+      creator: {
+        data: {
+          id: campaign.creator_user_id,
+          type: 'people',
+        },
+      },
     },
     type: 'campaigns',
   };
@@ -23,7 +43,7 @@ function mapDatabaseToPrettyCampaign(campaign) {
 function mapPrettyCampaignToDatabase(campaign) {
   return {
     id: campaign.id,
-    creator_user_id: campaign.attributes.creatorId,
+    creator_user_id: campaign.relationships.creator.data.id,
     name: campaign.attributes.name,
   };
 }

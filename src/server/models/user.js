@@ -68,6 +68,27 @@ export function fetchUserById(connection, id) {
     });
 }
 
+export function fetchUsersById(connection, ids) {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM users AS u WHERE u.id IN (?)', [
+      ids,
+    ], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(results);
+    });
+  })
+    .then(results => {
+      if (results.length === 0) {
+        return [];
+      }
+
+      return results.map(user => mapDatabaseToPrettyUser(user));
+    });
+}
+
 export function fetchUsers(connection) {
   return new Promise((resolve, reject) => {
     connection.query('SELECT * FROM users', (error, results) => {

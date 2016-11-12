@@ -38,6 +38,7 @@ export function formatValidationErrors(errors, isParams = false) {
           source: formatSource(error, isParams),
         };
 
+      case 'any.empty':
       case 'number.base':
       case 'string.base':
         return {
