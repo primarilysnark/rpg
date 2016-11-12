@@ -25,15 +25,17 @@ export function setupGoogleOAuth(passport, connection) {
 
         if (user == null) {
           return saveUser(connection, {
-            avatarUrl: profile.photos[0].value,
-            email: profile.emails[0].value,
+            attributes: {
+              avatarUrl: profile.photos[0].value,
+              email: profile.emails[0].value,
+              name: profile.displayName,
+            },
             google: {
               id: profile.id,
               expireTime,
               refreshToken,
               token,
             },
-            name: profile.displayName,
           });
         }
 
@@ -90,13 +92,16 @@ export function setupGoogleOAuth(passport, connection) {
 
               resolve(updateUser(connection, {
                 ...user,
-                avatarUrl: profile.image.url,
+                attributes: {
+                  ...user.attributes,
+                  avatarUrl: profile.image.url,
+                  name: profile.displayName,
+                },
                 google: {
                   ...user.google,
                   expireTime: response.expiry_date,
                   token: response.access_token,
                 },
-                name: profile.displayName,
               })
                 .then(() => user));
             });

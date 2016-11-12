@@ -1,28 +1,46 @@
+import Joi from 'joi';
+
+export const UserSchema = Joi.object().keys({
+  id: Joi.number(),
+  attributes: Joi.object().keys({
+    avatarUrl: Joi.string().min(1).max(200).required(),
+    email: Joi.string().min(1).max(200).required(),
+    name: Joi.string().min(1).max(200).required(),
+  }).required(),
+  links: Joi.object().keys({
+    self: Joi.string().regex(/\/api\/users\/\d+/).required(),
+  }),
+  type: Joi.string().valid('people').required(),
+});
+
 function mapDatabaseToPrettyUser(user) {
   return {
     id: user.id,
-    avatarUrl: user.avatar_url,
-    email: user.email,
+    attributes: {
+      avatarUrl: user.avatar_url,
+      email: user.email,
+      name: user.name,
+    },
     google: {
       id: user.google_id,
       token: user.google_token,
       refreshToken: user.google_refresh_token,
       expireTime: user.google_expire_time,
     },
-    name: user.name,
+    type: 'people',
   };
 }
 
 function mapPrettyUserToDatabase(user) {
   return {
     id: user.id,
-    avatar_url: user.avatarUrl,
-    email: user.email,
+    avatar_url: user.attributes.avatarUrl,
+    email: user.attributes.email,
     google_id: user.google.id,
     google_token: user.google.token,
     google_refresh_token: user.google.refreshToken,
     google_expire_time: user.google.expireTime,
-    name: user.name,
+    name: user.attributes.name,
   };
 }
 

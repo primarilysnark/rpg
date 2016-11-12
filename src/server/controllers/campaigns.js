@@ -21,9 +21,13 @@ export function createCampaign(req, res) {
       errors: formatValidationErrors(errors),
     }))
     .then(value => saveCampaign(req.connection, value))
-    .then(campaign => res.status(201).json({
-      data: campaign,
-    }))
+    .then(campaign => fetchUsersById(req.connection, campaign.relationships.creator.data.id)
+      .then(users => ({
+        data: campaign,
+        included: users.map(sanitizeUser),
+      }))
+    )
+    .then(response => res.status(201).json(response))
     .catch(error => res.status(500).send(error));
 }
 

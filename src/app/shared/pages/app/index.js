@@ -22,10 +22,12 @@ export class App extends Component {
   static propTypes = {
     children: PropTypes.node,
     currentUser: PropTypes.shape({
-      avatarUrl: PropTypes.string,
-      email: PropTypes.string,
+      attributes: PropTypes.shape({
+        avatarUrl: PropTypes.string,
+        email: PropTypes.string,
+        name: PropTypes.string,
+      }).isRequired,
       id: PropTypes.number.isRequired,
-      name: PropTypes.string,
     }).isRequired,
     routes: PropTypes.arrayOf(PropTypes.shape({
       path: PropTypes.string,
@@ -72,13 +74,13 @@ export class App extends Component {
             </ul>
             <div className="app__content__navigation__user">
               <div className="app__content__navigation__user__info user-info">
-                <button className="user-info__avatar" onClick={this.toggleUserMenu} style={{ backgroundImage: `url('${this.props.currentUser.avatarUrl}')` }} />
+                <button className="user-info__avatar" onClick={this.toggleUserMenu} style={{ backgroundImage: `url('${this.props.currentUser.attributes.avatarUrl}')` }} />
                 <div className={`user-info__menu ${this.state.isUserMenuOpen ? 'user-info__menu--open' : ''}`}>
                   <div className="user-info__menu__details">
-                    <img className="user-info__menu__details__avatar" role="presentation" src={this.props.currentUser.avatarUrl} />
+                    <img className="user-info__menu__details__avatar" role="presentation" src={this.props.currentUser.attributes.avatarUrl} />
                     <div className="user-info__menu__details__content">
-                      <div className="user-info__menu__details__content__name">{this.props.currentUser.name}</div>
-                      <div className="user-info__menu__details__content__email">{this.props.currentUser.email}</div>
+                      <div className="user-info__menu__details__content__name">{this.props.currentUser.attributes.name}</div>
+                      <div className="user-info__menu__details__content__email">{this.props.currentUser.attributes.email}</div>
                     </div>
                   </div>
                   <div className="user-info__menu__actions">
