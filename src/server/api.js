@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser';
 import express from 'express';
+import mysql from 'mysql';
 
 import {
   createAlignment,
@@ -28,10 +29,18 @@ function requiresAuth(callback) {
   };
 }
 
-export function createApiRequestHandler() {
+export function createApiRequestHandler(config) {
   const app = express();
 
   app.use(bodyParser.json());
+
+  app.use((req, res, next) => {
+    // eslint-disable-next-line no-param-reassign
+    req.connection = mysql.createConnection(config.mysql);
+    res.set('Content-Type', 'application/vnd.api+json');
+
+    next();
+  });
 
   app.route('/alignments')
     .get(getAlignments)

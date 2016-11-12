@@ -33,17 +33,17 @@ if (DEBUG) {
 app.use('/dist', express.static('dist'));
 app.use('/public', express.static('public'));
 
+app.use(/\/api(?!\/users)/, createApiRequestHandler(config));
+
+// Setup app session
+// TODO (Josh): Setup use of secure cookies, even with just a self-signed cert
+// TODO (Josh): Use a better session secret
 app.use((req, res, next) => {
   req.connection = mysql.createConnection(config.mysql);
 
   next();
 });
 
-app.use(/\/api(?!\/users)/, createApiRequestHandler());
-
-// Setup app session
-// TODO (Josh): Setup use of secure cookies, even with just a self-signed cert
-// TODO (Josh): Use a better session secret
 app.use(session({
   cookie: {
     secure: false,
