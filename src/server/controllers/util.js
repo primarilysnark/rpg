@@ -82,7 +82,9 @@ export function validateObject(object, schema) {
 }
 
 export function sendBadRequest(res, message) {
-  return res.status(400).send(message);
+  return res.status(400).json({
+    error: message,
+  });
 }
 
 export function sendNotFound(res) {
