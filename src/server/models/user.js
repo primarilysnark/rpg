@@ -13,7 +13,7 @@ export const UserSchema = Joi.object().keys({
   type: Joi.string().valid('people').required(),
 });
 
-function mapDatabaseToPrettyUser(user) {
+export function mapDatabaseToPrettyUser(user) {
   return {
     id: user.id,
     attributes: {

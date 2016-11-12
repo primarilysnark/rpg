@@ -1,9 +1,13 @@
 import Joi from 'joi';
 
+import { mapDatabaseToPrettyUser } from './user';
+
 export const CampaignSchema = Joi.object().keys({
   id: Joi.number(),
   attributes: Joi.object().keys({
     name: Joi.string().min(1).max(200).required(),
+    createdDate: Joi.date(),
+    lastUpdatedDate: Joi.date(),
   }).required(),
   links: Joi.object().keys({
     self: Joi.string().regex(/\/api\/campaigns\/\d+/).required(),
@@ -24,6 +28,8 @@ function mapDatabaseToPrettyCampaign(campaign) {
     id: campaign.id,
     attributes: {
       name: campaign.name,
+      createdDate: campaign.created_date,
+      lastUpdatedDate: campaign.last_updated_date,
     },
     links: {
       self: `/api/campaigns/${campaign.id}`,
@@ -99,6 +105,27 @@ export function fetchCampaigns(connection) {
       }
 
       return results.map(campaign => mapDatabaseToPrettyCampaign(campaign));
+    });
+}
+
+export function fetchUsersByCampaignId(connection, campaignId) {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT u.* FROM users u, campaigns c, campaign_users cu WHERE c.id = ? && cu.`campaign_id` = c.id && cu.user_id = u.id;', [
+      campaignId,
+    ], (error, results) => {
+      if (error) {
+        return reject(error);
+      }
+
+      return resolve(results);
+    });
+  })
+    .then(results => {
+      if (results.length === 0) {
+        return [];
+      }
+
+      return results.map(user => mapDatabaseToPrettyUser(user));
     });
 }
 

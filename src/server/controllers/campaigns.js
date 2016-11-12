@@ -5,6 +5,8 @@ import {
   deleteCampaignById,
   fetchCampaignById,
   fetchCampaigns,
+  fetchUserById,
+  fetchUsersByCampaignId,
   fetchUsersById,
   sanitizeUser,
   saveCampaign,
@@ -44,10 +46,24 @@ export function getCampaign(req, res) {
 
       return campaign;
     })
-    .then(campaign => fetchUsersById(req.connection, campaign.relationships.creator.data.id)
-      .then(users => ({
-        data: campaign,
-        included: users.map(sanitizeUser),
+    .then(campaign => Promise.all([
+      fetchUserById(req.connection, campaign.relationships.creator.data.id),
+      fetchUsersByCampaignId(req.connection, campaign.id),
+    ])
+      .then(([creator, players]) => ({
+        data: {
+          ...campaign,
+          relationships: {
+            ...campaign.relationships,
+            players: {
+              data: players.map(player => ({
+                id: player.id,
+                type: 'people',
+              })),
+            },
+          },
+        },
+        included: [creator].concat(players).map(sanitizeUser),
       }))
     )
     .then(response => res.status(200).json(response))
