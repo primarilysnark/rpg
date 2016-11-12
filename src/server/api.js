@@ -3,20 +3,12 @@ import express from 'express';
 import mysql from 'mysql';
 
 import {
-  createAlignment,
   createCampaign,
-  createRace,
-  getAlignment,
-  getAlignments,
   getCampaign,
   getCampaigns,
-  getRace,
-  getRaces,
   getUser,
   getUsers,
-  deleteAlignment,
   deleteCampaign,
-  deleteRace,
 } from './controllers';
 
 function requiresAuth(callback) {
@@ -42,14 +34,6 @@ export function createApiRequestHandler(config) {
     next();
   });
 
-  app.route('/alignments')
-    .get(getAlignments)
-    .post(createAlignment);
-
-  app.route('/alignments/:alignmentId')
-    .get(getAlignment)
-    .delete(deleteAlignment);
-
   app.route('/campaigns')
     .get(getCampaigns)
     .post(createCampaign);
@@ -57,14 +41,6 @@ export function createApiRequestHandler(config) {
   app.route('/campaigns/:campaignId')
     .get(getCampaign)
     .delete(deleteCampaign);
-
-  app.route('/races')
-    .get(getRaces)
-    .post(createRace);
-
-  app.route('/races/:raceId')
-    .get(getRace)
-    .delete(deleteRace);
 
   return app;
 }
