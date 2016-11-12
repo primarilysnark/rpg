@@ -2,21 +2,24 @@
 @import '../../../client/styles/mixins.less';
 
 .splash-page {
-  background: url('/public/images/background.jpg') center center;
-  background-size: cover;
+  background: @dark-grey;
   bottom: 0;
   left: 0;
   position: absolute;
   right: 0;
   top: 0;
 
-  &__tagline {
+  &__logo {
     color: @white;
-    font: 44px @font-stack;
     left: 50%;
     position: absolute;
     top: 50%;
-    transform: translate(-50%, -50px);
+    transform: translate(-50%, -200px);
+
+    svg {
+      height: 200px;
+      width: 200px;
+    }
   }
 
   &__actions {
@@ -28,8 +31,10 @@
     &__login {
       .button();
       background: @gold;
+      font: 14px @font-stack;
       color: @white;
       padding: 16px 32px;
+      text-transform: uppercase;
     }
   }
 }
