@@ -2,16 +2,15 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { auth, plus } from 'googleapis';
 
 import config from './config';
-import {
-  fetchUserByGoogleId,
-  fetchUserById,
-  saveUser,
-  updateUser,
-} from './models';
+import { UserService } from './services';
 
 const plusClient = plus('v1');
 
 export function setupGoogleOAuth(passport, connection) {
+  const userService = new UserService({
+    connection,
+  });
+
   passport.use(new GoogleStrategy({
     callbackURL: config.google.callbackURL,
     clientID: config.google.clientID,
@@ -19,12 +18,12 @@ export function setupGoogleOAuth(passport, connection) {
   }, (token, refreshToken, params, profile, done) => {
     const currentDate = Date.now();
 
-    fetchUserByGoogleId(connection, profile.id)
+    userService.fetchUserByGoogleId(profile.id)
       .then(user => {
         const expireTime = currentDate + params.expires_in;
 
         if (user == null) {
-          return saveUser(connection, {
+          return userService.saveUser({
             attributes: {
               avatarUrl: profile.photos[0].value,
               email: profile.emails[0].value,
@@ -39,7 +38,7 @@ export function setupGoogleOAuth(passport, connection) {
           });
         }
 
-        return updateUser(connection, {
+        return userService.updateUser({
           ...user,
           google: {
             ...user.google,
@@ -63,7 +62,7 @@ export function setupGoogleOAuth(passport, connection) {
       config.google.callbackURL
     );
 
-    fetchUserById(connection, id)
+    userService.fetchUserById(id)
       .then(user => {
         oauth2Client.setCredentials({
           access_token: user.google.token,
@@ -90,7 +89,7 @@ export function setupGoogleOAuth(passport, connection) {
                 reject(error);
               }
 
-              resolve(updateUser(connection, {
+              resolve(userService.updateUser({
                 ...user,
                 attributes: {
                   ...user.attributes,

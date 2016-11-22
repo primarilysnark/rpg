@@ -1,44 +1,55 @@
-import Joi from 'joi';
+import bodyParser from 'body-parser';
+import express from 'express';
+import mysql from 'mysql';
 
-import {
-  CampaignSchema,
-  deleteCampaignById,
-  fetchCampaignById,
-  fetchCampaigns,
-  fetchUserById,
-  fetchUsersByCampaignId,
-  fetchUsersById,
-  sanitizeUser,
-  saveCampaign,
-} from '../models';
-import { formatValidationErrors, validateObject } from './util';
+import { CampaignService, UserService } from '../services';
+import { formatValidationErrors } from './util';
 
-const campaignIdSchema = Joi.object().keys({
-  campaignId: Joi.number().required(),
-});
+function createCampaign(req, res) {
+  const { campaignService, userService } = req;
 
-export function createCampaign(req, res) {
-  return validateObject(req.body, CampaignSchema)
+  return campaignService.validateCampaign(req.body)
     .catch(errors => res.status(400).json({
       errors: formatValidationErrors(errors),
     }))
-    .then(value => saveCampaign(req.connection, value))
-    .then(campaign => fetchUsersById(req.connection, campaign.relationships.creator.data.id)
+    .then(campaign => campaignService.saveCampaign(campaign))
+    .then(campaign => userService.fetchUsersById(campaign.relationships.creator.data.id)
       .then(users => ({
         data: campaign,
-        included: users.map(sanitizeUser),
+        included: users.map(UserService.sanitizeUser),
       }))
     )
     .then(response => res.status(201).json(response))
     .catch(error => res.status(500).send(error));
 }
 
-export function getCampaign(req, res) {
-  return validateObject(req.params, campaignIdSchema)
+function deleteCampaign(req, res) {
+  const { campaignService } = req;
+
+  return campaignService.validateCampaignId(req.params)
     .catch(errors => res.status(400).json({
       errors: formatValidationErrors(errors, true),
     }))
-    .then(params => fetchCampaignById(req.connection, params.campaignId))
+    .then(params => campaignService.fetchCampaignById(params.campaignId))
+    .then(campaign => {
+      if (campaign == null) {
+        return res.status(404).send();
+      }
+
+      return campaignService.deleteCampaignById(campaign.id);
+    })
+    .then(() => res.status(204).send())
+    .catch(err => res.status(404).send(err));
+}
+
+function getCampaign(req, res) {
+  const { campaignService, userService } = req;
+
+  return campaignService.validateCampaignId(req.params)
+    .catch(errors => res.status(400).json({
+      errors: formatValidationErrors(errors, true),
+    }))
+    .then(params => campaignService.fetchCampaignById(params.campaignId))
     .then(campaign => {
       if (campaign == null) {
         return res.status(404).send();
@@ -47,54 +58,90 @@ export function getCampaign(req, res) {
       return campaign;
     })
     .then(campaign => Promise.all([
-      fetchUserById(req.connection, campaign.relationships.creator.data.id),
-      fetchUsersByCampaignId(req.connection, campaign.id),
+      userService.fetchUserById(campaign.relationships.creator.data.id),
+      userService.fetchUsersByCampaignId(campaign.id),
     ])
-      .then(([creator, players]) => ({
-        data: {
+      .then(([creator, users]) => {
+        const data = {
           ...campaign,
-          relationships: {
-            ...campaign.relationships,
-            players: {
-              data: players.map(player => ({
-                id: player.id,
-                type: 'people',
-              })),
-            },
-          },
-        },
-        included: [creator].concat(players).map(sanitizeUser),
-      }))
+        };
+
+        if (users.players.length !== 0) {
+          data.relationships.players = {
+            data: users.players.map(player => ({
+              id: player.id,
+              type: 'people',
+            })),
+          };
+        }
+
+        if (users.invited.length !== 0) {
+          data.relationships.invited = {
+            data: users.invited.map(player => ({
+              id: player.id,
+              type: 'people',
+            })),
+          };
+        }
+
+        return {
+          data,
+          included: [creator].concat(users.players).concat(users.invited).map(UserService.sanitizeUser),
+        };
+      })
     )
     .then(response => res.status(200).json(response))
     .catch(err => res.status(404).send(err));
 }
 
-export function getCampaigns(req, res) {
-  return fetchCampaigns(req.connection)
-    .then(campaigns => fetchUsersById(req.connection, campaigns.map(campaign => campaign.relationships.creator.data.id))
+function getCampaigns(req, res) {
+  const { campaignService } = req;
+
+  if (req.store == null || req.store.currentUser == null || req.store.currentUser.id == null) {
+    return res.status(401).send();
+  }
+
+  return campaignService.fetchCampaignsByUserId(req.store.currentUser.id)
+    /* .then(campaigns => fetchUsersById(req.connection, campaigns.map(campaign => campaign.relationships.creator.data.id))
       .then(users => ({
         data: campaigns,
         included: users.map(sanitizeUser),
       }))
-    )
+    ) */
+    .then(campaigns => ({
+      data: campaigns,
+    }))
     .then(response => res.status(200).json(response))
     .catch(err => res.status(500).send(err));
 }
 
-export function deleteCampaign(req, res) {
-  return validateObject(req.params, campaignIdSchema)
-    .catch(errors => res.status(400).json({
-      errors: formatValidationErrors(errors, true),
-    }))
-    .then(params => fetchCampaignById(req.connection, params.campaignId))
-    .then(campaign => {
-      if (campaign == null) {
-        return res.status(404).send();
-      }
+export function createCampaignRequestHandler(config) {
+  const app = express();
 
-      return deleteCampaignById(req.connection, campaign.id);
-    })
-    .then(() => res.status(204).send())
-    .catch(err => res.status(404).send(err));
+  app.use(bodyParser.json());
+
+  app.use((req, res, next) => {
+    // eslint-disable-next-line no-param-reassign
+    req.connection = mysql.createConnection(config.mysql);
+    // eslint-disable-next-line no-param-reassign
+    req.campaignService = new CampaignService({
+      connection: req.connection,
+    });
+    // eslint-disable-next-line no-param-reassign
+    req.userService = new UserService({
+      connection: req.connection,
+    });
+
+    next();
+  });
+
+  app.route('/')
+    .get(getCampaigns)
+    .post(createCampaign);
+
+  app.route('/:campaignId')
+    .get(getCampaign)
+    .delete(deleteCampaign);
+
+  return app;
 }
