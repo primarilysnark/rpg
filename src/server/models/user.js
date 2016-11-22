@@ -86,7 +86,11 @@ export function fetchUserById(connection, id) {
     });
 }
 
-export function fetchUsersById(connection, ids) {
+export function fetchUsersById(connection, ids = []) {
+  if (ids.length === 0) {
+    return [];
+  }
+
   return new Promise((resolve, reject) => {
     connection.query('SELECT * FROM users AS u WHERE u.id IN (?)', [
       ids,

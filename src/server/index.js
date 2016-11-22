@@ -33,8 +33,6 @@ if (DEBUG) {
 app.use('/dist', express.static('dist'));
 app.use('/public', express.static('public'));
 
-app.use(/\/api(?!\/users)/, createApiRequestHandler(config));
-
 // Setup app session
 // TODO (Josh): Setup use of secure cookies, even with just a self-signed cert
 // TODO (Josh): Use a better session secret
@@ -98,6 +96,8 @@ app.post('/signout', (request, response) => {
     response.redirect('/');
   });
 });
+
+app.use(/\/api(?!\/users)/, createApiRequestHandler(config));
 
 app.use('/api/users', createUserRequestHandler());
 
