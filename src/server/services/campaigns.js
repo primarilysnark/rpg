@@ -83,7 +83,7 @@ export class CampaignService extends SqlService {
       return mapDatabaseToPrettyCampaign(results[0]);
     });
 
-  fetchCampaignsByUserId = (userId) => this._query('SELECT * FROM campaigns INNER JOIN campaign_users ON campaign_users.campaign_id = campaigns.id WHERE campaign_users.user_id = ?;', [
+  fetchCampaignsByUserId = (userId) => this._query('SELECT c.*, cu.user_id AS creator_user_id FROM campaigns c INNER JOIN campaign_users cu ON cu.campaign_id = c.id WHERE cu.user_id = ?;', [
     userId,
   ])
     .then(results => {

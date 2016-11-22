@@ -96,22 +96,19 @@ function getCampaign(req, res) {
 }
 
 function getCampaigns(req, res) {
-  const { campaignService } = req;
+  const { campaignService, userService } = req;
 
   if (req.store == null || req.store.currentUser == null || req.store.currentUser.id == null) {
     return res.status(401).send();
   }
 
   return campaignService.fetchCampaignsByUserId(req.store.currentUser.id)
-    /* .then(campaigns => fetchUsersById(req.connection, campaigns.map(campaign => campaign.relationships.creator.data.id))
+    .then(campaigns => userService.fetchUsersById(campaigns.map(campaign => campaign.relationships.creator.data.id))
       .then(users => ({
         data: campaigns,
-        included: users.map(sanitizeUser),
+        included: users.map(UserService.sanitizeUser),
       }))
-    ) */
-    .then(campaigns => ({
-      data: campaigns,
-    }))
+    )
     .then(response => res.status(200).json(response))
     .catch(err => res.status(500).send(err));
 }
