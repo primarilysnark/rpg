@@ -6,7 +6,7 @@ import passport from 'passport';
 import session from 'express-session';
 
 import { addWebpackDevProxy } from './dev';
-import { createApiRequestHandler, createUserRequestHandler } from './api';
+import { createApiRequestHandler } from './api';
 import { createAppRequestHandler } from '../app/server/main';
 import { setupGoogleOAuth } from './auth';
 import config from './config';
@@ -97,9 +97,7 @@ app.post('/signout', (request, response) => {
   });
 });
 
-app.use(/\/api(?!\/users)/, createApiRequestHandler(config));
-
-app.use('/api/users', createUserRequestHandler());
+app.use('/api', createApiRequestHandler(config));
 
 // Setup usage of React router for routing on all other pages
 app.use(createAppRequestHandler());

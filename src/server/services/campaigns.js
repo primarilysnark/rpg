@@ -1,7 +1,6 @@
 import Joi from 'joi';
 
 import { SqlService } from './sql-service';
-import { mapDatabaseToPrettyUser } from '../models/user';
 import { tokenize } from '../utils/tokenize';
 import { validateObject } from '../utils/validation';
 
@@ -94,14 +93,6 @@ export class CampaignService extends SqlService {
 
       return results.map(campaign => mapDatabaseToPrettyCampaign(campaign));
     });
-
-  fetchUsersByCampaignId = (campaignId) => this._query('SELECT users.*, campaign_users.status FROM campaign_users INNER JOIN users ON users.id = campaign_users.user_id WHERE campaign_users.campaign_id = ?', [
-    campaignId,
-  ])
-    .then(results => ({
-      players: results.filter(result => result.status === 'accepted').map(user => mapDatabaseToPrettyUser(user)),
-      invited: results.filter(result => result.status === 'invited').map(user => mapDatabaseToPrettyUser(user)),
-    }));
 
   saveCampaign = (prettyCampaign) => {
     const databaseCampaign = mapPrettyCampaignToDatabase(prettyCampaign);
