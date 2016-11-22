@@ -33,7 +33,7 @@ function deleteCampaign(req, res) {
     .then(params => campaignService.fetchCampaignById(params.campaignId))
     .then(campaign => {
       if (campaign == null) {
-        return res.status(404).send();
+        throw new Error('Campaign not found');
       }
 
       return campaignService.deleteCampaignById(campaign.id);
@@ -52,11 +52,12 @@ function getCampaign(req, res) {
     .then(params => campaignService.fetchCampaignById(params.campaignId))
     .then(campaign => {
       if (campaign == null) {
-        return res.status(404).send();
+        throw new Error('Campaign not found');
       }
 
       return campaign;
     })
+    .catch(err => res.status(404).send(err))
     .then(campaign => Promise.all([
       userService.fetchUserById(campaign.relationships.creator.data.id),
       userService.fetchUsersByCampaignId(campaign.id),
